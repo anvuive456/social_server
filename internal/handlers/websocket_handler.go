@@ -319,7 +319,8 @@ func (h *WebSocketHandler) handleCallRequest(conn *WebSocketConnection, message 
 		RoomID:    callReq.RoomID,
 		Timestamp: time.Now().Format(time.RFC3339),
 		Data: h.marshalData(models.CallRequestMessage{
-			CallerID: caller.ID,
+			CallID:   caller.ID,
+			CallerID: caller.CallerID,
 			CalleeID: *caller.CalleeID,
 			CallType: caller.Type,
 			RoomID:   caller.RoomID,

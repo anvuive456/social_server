@@ -72,6 +72,7 @@ type LeaveRoomMessage struct {
 
 // Call request message
 type CallRequestMessage struct {
+	CallID   uint   `json:"call_id,omitempty"`
 	CallerID uint   `json:"caller_id,omitempty"`
 	CalleeID uint   `json:"callee_id"`
 	CallType string `json:"call_type"` // video, audio
