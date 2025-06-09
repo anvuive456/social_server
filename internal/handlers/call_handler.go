@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"social_server/internal/middleware"
+	"social_server/internal/models"
 	"social_server/internal/models/requests"
 	"social_server/internal/models/responses"
 	"social_server/internal/services"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+var _ = models.WebRTCConfig{}
 
 type CallHandler struct {
 	callService *services.CallService

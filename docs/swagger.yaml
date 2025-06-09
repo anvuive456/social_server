@@ -1,6 +1,13 @@
 basePath: /api/v1
 definitions:
-  models.ICEServerConfig:
+  paginator.Cursor:
+    properties:
+      after:
+        type: string
+      before:
+        type: string
+    type: object
+  social_server_internal_models.ICEServerConfig:
     properties:
       credential:
         type: string
@@ -11,31 +18,24 @@ definitions:
       username:
         type: string
     type: object
-  models.WebRTCConfig:
+  social_server_internal_models.WebRTCConfig:
     properties:
       ice_servers:
         items:
-          $ref: '#/definitions/models.ICEServerConfig'
+          $ref: '#/definitions/social_server_internal_models.ICEServerConfig'
         type: array
     type: object
-  paginator.Cursor:
-    properties:
-      after:
-        type: string
-      before:
-        type: string
-    type: object
-  postgres.Call:
+  social_server_internal_models_postgres.Call:
     properties:
       answer_sdp:
         type: string
       callee:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       callee_id:
         type: integer
       caller:
         allOf:
-        - $ref: '#/definitions/postgres.User'
+        - $ref: '#/definitions/social_server_internal_models_postgres.User'
         description: Relationships
       caller_id:
         type: integer
@@ -56,7 +56,7 @@ definitions:
         type: string
       participants:
         items:
-          $ref: '#/definitions/postgres.CallParticipant'
+          $ref: '#/definitions/social_server_internal_models_postgres.CallParticipant'
         type: array
       room_id:
         type: string
@@ -71,11 +71,11 @@ definitions:
       updated_at:
         type: string
     type: object
-  postgres.CallParticipant:
+  social_server_internal_models_postgres.CallParticipant:
     properties:
       call:
         allOf:
-        - $ref: '#/definitions/postgres.User'
+        - $ref: '#/definitions/social_server_internal_models_postgres.User'
         description: Relationships
       call_id:
         type: integer
@@ -98,11 +98,11 @@ definitions:
       updated_at:
         type: string
       user:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       user_id:
         type: integer
     type: object
-  postgres.Comment:
+  social_server_internal_models_postgres.Comment:
     properties:
       content:
         type: string
@@ -119,7 +119,7 @@ definitions:
         type: integer
       likes:
         items:
-          $ref: '#/definitions/postgres.CommentLike'
+          $ref: '#/definitions/social_server_internal_models_postgres.CommentLike'
         type: array
       media:
         description: JSON array as string
@@ -128,33 +128,33 @@ definitions:
         description: JSON array as string
         type: string
       parent:
-        $ref: '#/definitions/postgres.Comment'
+        $ref: '#/definitions/social_server_internal_models_postgres.Comment'
       parent_id:
         type: integer
       post:
         allOf:
-        - $ref: '#/definitions/postgres.Post'
+        - $ref: '#/definitions/social_server_internal_models_postgres.Post'
         description: Relationships
       post_id:
         type: integer
       replies:
         items:
-          $ref: '#/definitions/postgres.Comment'
+          $ref: '#/definitions/social_server_internal_models_postgres.Comment'
         type: array
       reply_count:
         type: integer
       updated_at:
         type: string
       user:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       user_id:
         type: integer
     type: object
-  postgres.CommentLike:
+  social_server_internal_models_postgres.CommentLike:
     properties:
       comment:
         allOf:
-        - $ref: '#/definitions/postgres.Comment'
+        - $ref: '#/definitions/social_server_internal_models_postgres.Comment'
         description: Relationships
       comment_id:
         type: integer
@@ -168,11 +168,11 @@ definitions:
       updated_at:
         type: string
       user:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       user_id:
         type: integer
     type: object
-  postgres.FriendRequest:
+  social_server_internal_models_postgres.FriendRequest:
     properties:
       created_at:
         type: string
@@ -181,23 +181,23 @@ definitions:
       message:
         type: string
       receiver:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       receiver_id:
         type: integer
       sender:
         allOf:
-        - $ref: '#/definitions/postgres.User'
+        - $ref: '#/definitions/social_server_internal_models_postgres.User'
         description: Relationships
       sender_id:
         type: integer
       status:
         allOf:
-        - $ref: '#/definitions/postgres.FriendRequestStatus'
+        - $ref: '#/definitions/social_server_internal_models_postgres.FriendRequestStatus'
         description: pending, accepted, rejected
       updated_at:
         type: string
     type: object
-  postgres.FriendRequestStatus:
+  social_server_internal_models_postgres.FriendRequestStatus:
     enum:
     - pending
     - accepted
@@ -207,7 +207,7 @@ definitions:
     - FriendRequestPending
     - FriendRequestAccepted
     - FriendRequestRejected
-  postgres.Like:
+  social_server_internal_models_postgres.Like:
     properties:
       created_at:
         description: Timestamps
@@ -216,7 +216,7 @@ definitions:
         type: integer
       post:
         allOf:
-        - $ref: '#/definitions/postgres.Post'
+        - $ref: '#/definitions/social_server_internal_models_postgres.Post'
         description: Relationships
       post_id:
         type: integer
@@ -226,15 +226,15 @@ definitions:
       updated_at:
         type: string
       user:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       user_id:
         type: integer
     type: object
-  postgres.Post:
+  social_server_internal_models_postgres.Post:
     properties:
       author:
         allOf:
-        - $ref: '#/definitions/postgres.User'
+        - $ref: '#/definitions/social_server_internal_models_postgres.User'
         description: Relationships
       author_id:
         type: integer
@@ -242,7 +242,7 @@ definitions:
         type: integer
       comments:
         items:
-          $ref: '#/definitions/postgres.Comment'
+          $ref: '#/definitions/social_server_internal_models_postgres.Comment'
         type: array
       content:
         type: string
@@ -261,40 +261,40 @@ definitions:
         type: integer
       likes:
         items:
-          $ref: '#/definitions/postgres.Like'
+          $ref: '#/definitions/social_server_internal_models_postgres.Like'
         type: array
       location:
         type: string
       media:
         items:
-          $ref: '#/definitions/postgres.PostMedia'
+          $ref: '#/definitions/social_server_internal_models_postgres.PostMedia'
         type: array
       mentioned_users:
         description: JSON array as string
         type: string
       privacy:
-        $ref: '#/definitions/postgres.PostPrivacy'
+        $ref: '#/definitions/social_server_internal_models_postgres.PostPrivacy'
       share_count:
         type: integer
       shares:
         items:
-          $ref: '#/definitions/postgres.Share'
+          $ref: '#/definitions/social_server_internal_models_postgres.Share'
         type: array
       tags:
         description: JSON array as string
         type: string
       type:
-        $ref: '#/definitions/postgres.PostType'
+        $ref: '#/definitions/social_server_internal_models_postgres.PostType'
       updated_at:
         type: string
       view_count:
         type: integer
       views:
         items:
-          $ref: '#/definitions/postgres.PostView'
+          $ref: '#/definitions/social_server_internal_models_postgres.PostView'
         type: array
     type: object
-  postgres.PostMedia:
+  social_server_internal_models_postgres.PostMedia:
     properties:
       alt_text:
         type: string
@@ -317,7 +317,7 @@ definitions:
         type: integer
       post:
         allOf:
-        - $ref: '#/definitions/postgres.Post'
+        - $ref: '#/definitions/social_server_internal_models_postgres.Post'
         description: Relationships
       post_id:
         type: integer
@@ -334,7 +334,7 @@ definitions:
       width:
         type: integer
     type: object
-  postgres.PostPrivacy:
+  social_server_internal_models_postgres.PostPrivacy:
     enum:
     - public
     - friends
@@ -350,7 +350,7 @@ definitions:
     - PostPrivacyPublic
     - PostPrivacyFriends
     - PostPrivacyPrivate
-  postgres.PostType:
+  social_server_internal_models_postgres.PostType:
     enum:
     - text
     - image
@@ -374,7 +374,7 @@ definitions:
     - PostTypeVideo
     - PostTypeLink
     - PostTypeAudio
-  postgres.PostView:
+  social_server_internal_models_postgres.PostView:
     properties:
       created_at:
         description: Timestamps
@@ -385,12 +385,12 @@ definitions:
         type: string
       post:
         allOf:
-        - $ref: '#/definitions/postgres.Post'
+        - $ref: '#/definitions/social_server_internal_models_postgres.Post'
         description: Relationships
       post_id:
         type: integer
       user:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       user_agent:
         type: string
       user_id:
@@ -400,7 +400,7 @@ definitions:
         description: in seconds
         type: integer
     type: object
-  postgres.Profile:
+  social_server_internal_models_postgres.Profile:
     properties:
       avatar:
         type: string
@@ -432,7 +432,7 @@ definitions:
       wall_image_hash:
         type: string
     type: object
-  postgres.Share:
+  social_server_internal_models_postgres.Share:
     properties:
       content:
         description: Optional comment when sharing
@@ -444,20 +444,20 @@ definitions:
         type: integer
       post:
         allOf:
-        - $ref: '#/definitions/postgres.Post'
+        - $ref: '#/definitions/social_server_internal_models_postgres.Post'
         description: Relationships
       post_id:
         type: integer
       privacy:
-        $ref: '#/definitions/postgres.PostPrivacy'
+        $ref: '#/definitions/social_server_internal_models_postgres.PostPrivacy'
       updated_at:
         type: string
       user:
-        $ref: '#/definitions/postgres.User'
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
       user_id:
         type: integer
     type: object
-  postgres.User:
+  social_server_internal_models_postgres.User:
     properties:
       ban_reason:
         type: string
@@ -465,17 +465,16 @@ definitions:
         type: string
       blocked_users:
         items:
-          $ref: '#/definitions/postgres.User'
+          $ref: '#/definitions/social_server_internal_models_postgres.User'
         type: array
       created_at:
         description: Timestamps
         type: string
       email:
         type: string
-      friends:
-        description: Relationships
+      friend_of:
         items:
-          $ref: '#/definitions/postgres.User'
+          $ref: '#/definitions/social_server_internal_models_postgres.UserFriend'
         type: array
       id:
         type: integer
@@ -493,25 +492,52 @@ definitions:
         description: JSON array of permissions
         type: string
       profile:
-        $ref: '#/definitions/postgres.Profile'
+        $ref: '#/definitions/social_server_internal_models_postgres.Profile'
       received_friend_requests:
         items:
-          $ref: '#/definitions/postgres.FriendRequest'
+          $ref: '#/definitions/social_server_internal_models_postgres.FriendRequest'
         type: array
       role:
         type: string
       sent_friend_requests:
         items:
-          $ref: '#/definitions/postgres.FriendRequest'
+          $ref: '#/definitions/social_server_internal_models_postgres.FriendRequest'
         type: array
       settings:
         allOf:
-        - $ref: '#/definitions/postgres.UserSettings'
+        - $ref: '#/definitions/social_server_internal_models_postgres.UserSettings'
         description: Embedded settings
       updated_at:
         type: string
+      user_friends:
+        description: Relationships
+        items:
+          $ref: '#/definitions/social_server_internal_models_postgres.UserFriend'
+        type: array
     type: object
-  postgres.UserSettings:
+  social_server_internal_models_postgres.UserFriend:
+    properties:
+      created_at:
+        description: Timestamps
+        type: string
+      friend:
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
+      friend_id:
+        type: integer
+      id:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.User'
+        description: Relationships
+      user_id:
+        type: integer
+    type: object
+  social_server_internal_models_postgres.UserSettings:
     properties:
       notifications_email:
         description: Notification settings
@@ -532,14 +558,14 @@ definitions:
       privacy_show_online_status:
         type: boolean
     type: object
-  requests.AcceptFriendRequest:
+  social_server_internal_models_requests.AcceptFriendRequest:
     properties:
       user_id:
         type: integer
     required:
     - user_id
     type: object
-  requests.ChangePasswordRequest:
+  social_server_internal_models_requests.ChangePasswordRequest:
     properties:
       current_password:
         type: string
@@ -550,7 +576,7 @@ definitions:
     - current_password
     - new_password
     type: object
-  requests.CreateCommentRequest:
+  social_server_internal_models_requests.CreateCommentRequest:
     properties:
       content:
         type: string
@@ -563,7 +589,7 @@ definitions:
     required:
     - content
     type: object
-  requests.CreatePostRequest:
+  social_server_internal_models_requests.CreatePostRequest:
     properties:
       content:
         type: string
@@ -571,27 +597,27 @@ definitions:
         type: string
       media:
         items:
-          $ref: '#/definitions/requests.PostMediaRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.PostMediaRequest'
         type: array
       privacy:
-        $ref: '#/definitions/requests.PostPrivacy'
+        $ref: '#/definitions/social_server_internal_models_requests.PostPrivacy'
       tags:
         items:
           type: string
         type: array
       type:
-        $ref: '#/definitions/requests.PostType'
+        $ref: '#/definitions/social_server_internal_models_requests.PostType'
     required:
     - type
     type: object
-  requests.DeclineFriendRequest:
+  social_server_internal_models_requests.DeclineFriendRequest:
     properties:
       user_id:
         type: integer
     required:
     - user_id
     type: object
-  requests.InitiateCallRequest:
+  social_server_internal_models_requests.InitiateCallRequest:
     properties:
       callee_id:
         minimum: 1
@@ -605,7 +631,7 @@ definitions:
     - callee_id
     - type
     type: object
-  requests.LoginRequest:
+  social_server_internal_models_requests.LoginRequest:
     properties:
       device_info:
         type: string
@@ -621,7 +647,7 @@ definitions:
     - email
     - password
     type: object
-  requests.PostMediaRequest:
+  social_server_internal_models_requests.PostMediaRequest:
     properties:
       alt_text:
         type: string
@@ -649,7 +675,7 @@ definitions:
     - type
     - url
     type: object
-  requests.PostPrivacy:
+  social_server_internal_models_requests.PostPrivacy:
     enum:
     - public
     - friends
@@ -662,7 +688,7 @@ definitions:
     - PostPrivacyPublic
     - PostPrivacyFriends
     - PostPrivacyPrivate
-  requests.PostType:
+  social_server_internal_models_requests.PostType:
     enum:
     - text
     - image
@@ -681,14 +707,14 @@ definitions:
     - PostTypeVideo
     - PostTypeLink
     - PostTypeAudio
-  requests.RefreshTokenRequest:
+  social_server_internal_models_requests.RefreshTokenRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  requests.RegisterRequest:
+  social_server_internal_models_requests.RegisterRequest:
     properties:
       accept_privacy:
         type: boolean
@@ -705,7 +731,7 @@ definitions:
     - email
     - password
     type: object
-  requests.ResetPasswordRequest:
+  social_server_internal_models_requests.ResetPasswordRequest:
     properties:
       new_password:
         minLength: 6
@@ -716,36 +742,36 @@ definitions:
     - new_password
     - token
     type: object
-  requests.SharePostRequest:
+  social_server_internal_models_requests.SharePostRequest:
     properties:
       content:
         type: string
       privacy:
-        $ref: '#/definitions/requests.PostPrivacy'
+        $ref: '#/definitions/social_server_internal_models_requests.PostPrivacy'
     type: object
-  requests.UpdatePostRequest:
+  social_server_internal_models_requests.UpdatePostRequest:
     properties:
       content:
         type: string
       location:
         type: string
       privacy:
-        $ref: '#/definitions/requests.PostPrivacy'
+        $ref: '#/definitions/social_server_internal_models_requests.PostPrivacy'
       tags:
         items:
           type: string
         type: array
     type: object
-  responses.ActiveCallsResponse:
+  social_server_internal_models_responses.ActiveCallsResponse:
     properties:
       calls:
         items:
-          $ref: '#/definitions/responses.CallResponse'
+          $ref: '#/definitions/social_server_internal_models_responses.CallResponse'
         type: array
       total:
         type: integer
     type: object
-  responses.CallDetailResponse:
+  social_server_internal_models_responses.CallDetailResponse:
     properties:
       callee_id:
         type: integer
@@ -763,7 +789,7 @@ definitions:
         type: boolean
       participants:
         items:
-          $ref: '#/definitions/postgres.CallParticipant'
+          $ref: '#/definitions/social_server_internal_models_postgres.CallParticipant'
         type: array
       room_id:
         type: string
@@ -776,16 +802,16 @@ definitions:
       updated_at:
         type: string
     type: object
-  responses.CallHistoriesResponse:
+  social_server_internal_models_responses.CallHistoriesResponse:
     properties:
       calls:
         items:
-          $ref: '#/definitions/postgres.Call'
+          $ref: '#/definitions/social_server_internal_models_postgres.Call'
         type: array
       next_cursor:
         $ref: '#/definitions/paginator.Cursor'
     type: object
-  responses.CallResponse:
+  social_server_internal_models_responses.CallResponse:
     properties:
       callee_id:
         type: integer
@@ -802,42 +828,42 @@ definitions:
       type:
         type: string
     type: object
-  responses.CallStatsResponse:
+  social_server_internal_models_responses.CallStatsResponse:
     properties:
       stats:
         additionalProperties: true
         type: object
     type: object
-  responses.CommentResponse:
+  social_server_internal_models_responses.CommentResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/postgres.Comment'
+          $ref: '#/definitions/social_server_internal_models_postgres.Comment'
         type: array
       next_cursor:
         $ref: '#/definitions/paginator.Cursor'
       total:
         type: integer
     type: object
-  responses.PostResponse:
+  social_server_internal_models_responses.PostResponse:
     properties:
       items:
         items:
-          $ref: '#/definitions/postgres.Post'
+          $ref: '#/definitions/social_server_internal_models_postgres.Post'
         type: array
       next_cursor:
         $ref: '#/definitions/paginator.Cursor'
       total:
         type: integer
     type: object
-  services.AutoCompleteResponse:
+  social_server_internal_services.AutoCompleteResponse:
     properties:
       suggestions:
         items:
-          $ref: '#/definitions/services.AutoCompleteSuggestion'
+          $ref: '#/definitions/social_server_internal_services.AutoCompleteSuggestion'
         type: array
     type: object
-  services.AutoCompleteSuggestion:
+  social_server_internal_services.AutoCompleteSuggestion:
     properties:
       score:
         type: number
@@ -846,19 +872,19 @@ definitions:
       type:
         type: string
     type: object
-  services.DateRange:
+  social_server_internal_services.DateRange:
     properties:
       from:
         type: string
       to:
         type: string
     type: object
-  services.SearchRequest:
+  social_server_internal_services.SearchRequest:
     properties:
       author_id:
         type: string
       date_range:
-        $ref: '#/definitions/services.DateRange'
+        $ref: '#/definitions/social_server_internal_services.DateRange'
       facets:
         items:
           type: string
@@ -890,7 +916,7 @@ definitions:
         description: post, user, comment
         type: string
     type: object
-  services.SearchResponse:
+  social_server_internal_services.SearchResponse:
     properties:
       facets:
         additionalProperties: true
@@ -903,7 +929,7 @@ definitions:
         type: integer
       results:
         items:
-          $ref: '#/definitions/services.SearchResult'
+          $ref: '#/definitions/social_server_internal_services.SearchResult'
         type: array
       size:
         type: integer
@@ -917,7 +943,7 @@ definitions:
       total:
         type: integer
     type: object
-  services.SearchResult:
+  social_server_internal_services.SearchResult:
     properties:
       author_id:
         type: string
@@ -977,7 +1003,7 @@ paths:
         name: password
         required: true
         schema:
-          $ref: '#/definitions/requests.ChangePasswordRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.ChangePasswordRequest'
       produces:
       - application/json
       responses:
@@ -1042,7 +1068,7 @@ paths:
         name: credentials
         required: true
         schema:
-          $ref: '#/definitions/requests.LoginRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.LoginRequest'
       produces:
       - application/json
       responses:
@@ -1101,7 +1127,7 @@ paths:
         name: refresh
         required: true
         schema:
-          $ref: '#/definitions/requests.RefreshTokenRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.RefreshTokenRequest'
       produces:
       - application/json
       responses:
@@ -1134,7 +1160,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/requests.RegisterRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.RegisterRequest'
       produces:
       - application/json
       responses:
@@ -1192,7 +1218,7 @@ paths:
         name: reset
         required: true
         schema:
-          $ref: '#/definitions/requests.ResetPasswordRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.ResetPasswordRequest'
       produces:
       - application/json
       responses:
@@ -1245,14 +1271,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/requests.InitiateCallRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.InitiateCallRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/responses.CallResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.CallResponse'
         "400":
           description: Bad Request
           schema: {}
@@ -1282,7 +1308,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/responses.CallDetailResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.CallDetailResponse'
         "400":
           description: Bad Request
           schema: {}
@@ -1393,7 +1419,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/responses.ActiveCallsResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.ActiveCallsResponse'
         "401":
           description: Unauthorized
           schema: {}
@@ -1447,7 +1473,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/responses.CallHistoriesResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.CallHistoriesResponse'
         "400":
           description: Bad Request
           schema: {}
@@ -1468,7 +1494,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/responses.CallStatsResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.CallStatsResponse'
         "401":
           description: Unauthorized
           schema: {}
@@ -1489,7 +1515,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.WebRTCConfig'
+            $ref: '#/definitions/social_server_internal_models.WebRTCConfig'
         "401":
           description: Unauthorized
           schema: {}
@@ -1670,7 +1696,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/requests.AcceptFriendRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.AcceptFriendRequest'
       produces:
       - application/json
       responses:
@@ -1739,7 +1765,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/requests.DeclineFriendRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.DeclineFriendRequest'
       produces:
       - application/json
       responses:
@@ -1892,14 +1918,14 @@ paths:
         name: post
         required: true
         schema:
-          $ref: '#/definitions/requests.CreatePostRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.CreatePostRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created post
           schema:
-            $ref: '#/definitions/postgres.Post'
+            $ref: '#/definitions/social_server_internal_models_postgres.Post'
         "400":
           description: Invalid request
           schema:
@@ -1969,7 +1995,7 @@ paths:
         "200":
           description: Post data
           schema:
-            $ref: '#/definitions/postgres.Post'
+            $ref: '#/definitions/social_server_internal_models_postgres.Post'
         "400":
           description: Invalid post ID
           schema:
@@ -1998,14 +2024,14 @@ paths:
         name: post
         required: true
         schema:
-          $ref: '#/definitions/requests.UpdatePostRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.UpdatePostRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Updated post
           schema:
-            $ref: '#/definitions/postgres.Post'
+            $ref: '#/definitions/social_server_internal_models_postgres.Post'
         "400":
           description: Invalid request
           schema:
@@ -2055,7 +2081,7 @@ paths:
         "200":
           description: Comments data
           schema:
-            $ref: '#/definitions/responses.CommentResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.CommentResponse'
         "400":
           description: Invalid request
           schema:
@@ -2084,14 +2110,14 @@ paths:
         name: comment
         required: true
         schema:
-          $ref: '#/definitions/requests.CreateCommentRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.CreateCommentRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created comment
           schema:
-            $ref: '#/definitions/postgres.Comment'
+            $ref: '#/definitions/social_server_internal_models_postgres.Comment'
         "400":
           description: Invalid request
           schema:
@@ -2168,14 +2194,14 @@ paths:
         name: share
         required: true
         schema:
-          $ref: '#/definitions/requests.SharePostRequest'
+          $ref: '#/definitions/social_server_internal_models_requests.SharePostRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created share
           schema:
-            $ref: '#/definitions/postgres.Share'
+            $ref: '#/definitions/social_server_internal_models_postgres.Share'
         "400":
           description: Invalid request
           schema:
@@ -2215,7 +2241,7 @@ paths:
         "200":
           description: Feed data
           schema:
-            $ref: '#/definitions/responses.PostResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.PostResponse'
         "401":
           description: Unauthorized
           schema:
@@ -2245,7 +2271,7 @@ paths:
         "200":
           description: Public feed data
           schema:
-            $ref: '#/definitions/responses.PostResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.PostResponse'
       summary: Get public feed
       tags:
       - Posts
@@ -2273,7 +2299,7 @@ paths:
         "200":
           description: Search results
           schema:
-            $ref: '#/definitions/responses.PostResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.PostResponse'
         "400":
           description: Invalid request
           schema:
@@ -2306,7 +2332,7 @@ paths:
         "200":
           description: Posts data
           schema:
-            $ref: '#/definitions/responses.PostResponse'
+            $ref: '#/definitions/social_server_internal_models_responses.PostResponse'
         "400":
           description: Invalid request
           schema:
@@ -2540,7 +2566,7 @@ paths:
         "200":
           description: Search results
           schema:
-            $ref: '#/definitions/services.SearchResponse'
+            $ref: '#/definitions/social_server_internal_services.SearchResponse'
         "400":
           description: Invalid request
           schema:
@@ -2654,14 +2680,14 @@ paths:
         name: search
         required: true
         schema:
-          $ref: '#/definitions/services.SearchRequest'
+          $ref: '#/definitions/social_server_internal_services.SearchRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Search results
           schema:
-            $ref: '#/definitions/services.SearchResponse'
+            $ref: '#/definitions/social_server_internal_services.SearchResponse'
         "400":
           description: Invalid request
           schema:
@@ -2699,7 +2725,7 @@ paths:
         "200":
           description: Search suggestions
           schema:
-            $ref: '#/definitions/services.AutoCompleteResponse'
+            $ref: '#/definitions/social_server_internal_services.AutoCompleteResponse'
         "400":
           description: Invalid request
           schema:
@@ -2751,7 +2777,7 @@ paths:
         "200":
           description: Comment search results
           schema:
-            $ref: '#/definitions/services.SearchResponse'
+            $ref: '#/definitions/social_server_internal_services.SearchResponse'
         "500":
           description: Search failed
           schema:
@@ -2809,7 +2835,7 @@ paths:
         "200":
           description: Post search results
           schema:
-            $ref: '#/definitions/services.SearchResponse'
+            $ref: '#/definitions/social_server_internal_services.SearchResponse'
         "500":
           description: Search failed
           schema:
@@ -2877,7 +2903,7 @@ paths:
         "200":
           description: User search results
           schema:
-            $ref: '#/definitions/services.SearchResponse'
+            $ref: '#/definitions/social_server_internal_services.SearchResponse'
         "500":
           description: Search failed
           schema:
@@ -3030,7 +3056,7 @@ paths:
         "200":
           description: User settings
           schema:
-            $ref: '#/definitions/postgres.UserSettings'
+            $ref: '#/definitions/social_server_internal_models_postgres.UserSettings'
         "401":
           description: Unauthorized
           schema:
@@ -3051,7 +3077,7 @@ paths:
         name: settings
         required: true
         schema:
-          $ref: '#/definitions/postgres.UserSettings'
+          $ref: '#/definitions/social_server_internal_models_postgres.UserSettings'
       produces:
       - application/json
       responses:

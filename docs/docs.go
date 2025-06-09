@@ -49,7 +49,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.ChangePasswordRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -143,7 +143,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.LoginRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.LoginRequest"
                         }
                     }
                 ],
@@ -232,7 +232,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.RefreshTokenRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.RefreshTokenRequest"
                         }
                     }
                 ],
@@ -281,7 +281,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.RegisterRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.RegisterRequest"
                         }
                     }
                 ],
@@ -368,7 +368,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.ResetPasswordRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.ResetPasswordRequest"
                         }
                     }
                 ],
@@ -452,7 +452,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.InitiateCallRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.InitiateCallRequest"
                         }
                     }
                 ],
@@ -460,7 +460,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/responses.CallResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.CallResponse"
                         }
                     },
                     "400": {
@@ -497,7 +497,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.ActiveCallsResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.ActiveCallsResponse"
                         }
                     },
                     "401": {
@@ -581,7 +581,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.CallHistoriesResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.CallHistoriesResponse"
                         }
                     },
                     "400": {
@@ -614,7 +614,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.CallStatsResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.CallStatsResponse"
                         }
                     },
                     "401": {
@@ -647,7 +647,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.WebRTCConfig"
+                            "$ref": "#/definitions/social_server_internal_models.WebRTCConfig"
                         }
                     },
                     "401": {
@@ -685,7 +685,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.CallDetailResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.CallDetailResponse"
                         }
                     },
                     "400": {
@@ -911,7 +911,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.AcceptFriendRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.AcceptFriendRequest"
                         }
                     }
                 ],
@@ -1017,7 +1017,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.DeclineFriendRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.DeclineFriendRequest"
                         }
                     }
                 ],
@@ -1445,7 +1445,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.CreatePostRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.CreatePostRequest"
                         }
                     }
                 ],
@@ -1453,7 +1453,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created post",
                         "schema": {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     },
                     "400": {
@@ -1507,7 +1507,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Feed data",
                         "schema": {
-                            "$ref": "#/definitions/responses.PostResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.PostResponse"
                         }
                     },
                     "401": {
@@ -1549,7 +1549,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Public feed data",
                         "schema": {
-                            "$ref": "#/definitions/responses.PostResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.PostResponse"
                         }
                     }
                 }
@@ -1591,7 +1591,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Search results",
                         "schema": {
-                            "$ref": "#/definitions/responses.PostResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.PostResponse"
                         }
                     },
                     "400": {
@@ -1640,7 +1640,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Posts data",
                         "schema": {
-                            "$ref": "#/definitions/responses.PostResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.PostResponse"
                         }
                     },
                     "400": {
@@ -1676,7 +1676,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Post data",
                         "schema": {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     },
                     "400": {
@@ -1726,7 +1726,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.UpdatePostRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.UpdatePostRequest"
                         }
                     }
                 ],
@@ -1734,7 +1734,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated post",
                         "schema": {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     },
                     "400": {
@@ -1862,7 +1862,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Comments data",
                         "schema": {
-                            "$ref": "#/definitions/responses.CommentResponse"
+                            "$ref": "#/definitions/social_server_internal_models_responses.CommentResponse"
                         }
                     },
                     "400": {
@@ -1912,7 +1912,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.CreateCommentRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.CreateCommentRequest"
                         }
                     }
                 ],
@@ -1920,7 +1920,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created comment",
                         "schema": {
-                            "$ref": "#/definitions/postgres.Comment"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Comment"
                         }
                     },
                     "400": {
@@ -2039,7 +2039,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.SharePostRequest"
+                            "$ref": "#/definitions/social_server_internal_models_requests.SharePostRequest"
                         }
                     }
                 ],
@@ -2047,7 +2047,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created share",
                         "schema": {
-                            "$ref": "#/definitions/postgres.Share"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Share"
                         }
                     },
                     "400": {
@@ -2409,7 +2409,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Search results",
                         "schema": {
-                            "$ref": "#/definitions/services.SearchResponse"
+                            "$ref": "#/definitions/social_server_internal_services.SearchResponse"
                         }
                     },
                     "400": {
@@ -2585,7 +2585,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.SearchRequest"
+                            "$ref": "#/definitions/social_server_internal_services.SearchRequest"
                         }
                     }
                 ],
@@ -2593,7 +2593,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Search results",
                         "schema": {
-                            "$ref": "#/definitions/services.SearchResponse"
+                            "$ref": "#/definitions/social_server_internal_services.SearchResponse"
                         }
                     },
                     "400": {
@@ -2649,7 +2649,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Search suggestions",
                         "schema": {
-                            "$ref": "#/definitions/services.AutoCompleteResponse"
+                            "$ref": "#/definitions/social_server_internal_services.AutoCompleteResponse"
                         }
                     },
                     "400": {
@@ -2725,7 +2725,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Comment search results",
                         "schema": {
-                            "$ref": "#/definitions/services.SearchResponse"
+                            "$ref": "#/definitions/social_server_internal_services.SearchResponse"
                         }
                     },
                     "500": {
@@ -2810,7 +2810,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Post search results",
                         "schema": {
-                            "$ref": "#/definitions/services.SearchResponse"
+                            "$ref": "#/definitions/social_server_internal_services.SearchResponse"
                         }
                     },
                     "500": {
@@ -2910,7 +2910,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User search results",
                         "schema": {
-                            "$ref": "#/definitions/services.SearchResponse"
+                            "$ref": "#/definitions/social_server_internal_services.SearchResponse"
                         }
                     },
                     "500": {
@@ -3101,7 +3101,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User settings",
                         "schema": {
-                            "$ref": "#/definitions/postgres.UserSettings"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.UserSettings"
                         }
                     },
                     "401": {
@@ -3137,7 +3137,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/postgres.UserSettings"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.UserSettings"
                         }
                     }
                 ],
@@ -3255,7 +3255,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.ICEServerConfig": {
+        "paginator.Cursor": {
+            "type": "object",
+            "properties": {
+                "after": {
+                    "type": "string"
+                },
+                "before": {
+                    "type": "string"
+                }
+            }
+        },
+        "social_server_internal_models.ICEServerConfig": {
             "type": "object",
             "properties": {
                 "credential": {
@@ -3272,36 +3283,25 @@ const docTemplate = `{
                 }
             }
         },
-        "models.WebRTCConfig": {
+        "social_server_internal_models.WebRTCConfig": {
             "type": "object",
             "properties": {
                 "ice_servers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ICEServerConfig"
+                        "$ref": "#/definitions/social_server_internal_models.ICEServerConfig"
                     }
                 }
             }
         },
-        "paginator.Cursor": {
-            "type": "object",
-            "properties": {
-                "after": {
-                    "type": "string"
-                },
-                "before": {
-                    "type": "string"
-                }
-            }
-        },
-        "postgres.Call": {
+        "social_server_internal_models_postgres.Call": {
             "type": "object",
             "properties": {
                 "answer_sdp": {
                     "type": "string"
                 },
                 "callee": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "callee_id": {
                     "type": "integer"
@@ -3310,7 +3310,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.User"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.User"
                         }
                     ]
                 },
@@ -3341,7 +3341,7 @@ const docTemplate = `{
                 "participants": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.CallParticipant"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.CallParticipant"
                     }
                 },
                 "room_id": {
@@ -3363,14 +3363,14 @@ const docTemplate = `{
                 }
             }
         },
-        "postgres.CallParticipant": {
+        "social_server_internal_models_postgres.CallParticipant": {
             "type": "object",
             "properties": {
                 "call": {
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.User"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.User"
                         }
                     ]
                 },
@@ -3404,14 +3404,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "postgres.Comment": {
+        "social_server_internal_models_postgres.Comment": {
             "type": "object",
             "properties": {
                 "content": {
@@ -3436,7 +3436,7 @@ const docTemplate = `{
                 "likes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.CommentLike"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.CommentLike"
                     }
                 },
                 "media": {
@@ -3448,7 +3448,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parent": {
-                    "$ref": "#/definitions/postgres.Comment"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.Comment"
                 },
                 "parent_id": {
                     "type": "integer"
@@ -3457,7 +3457,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     ]
                 },
@@ -3467,7 +3467,7 @@ const docTemplate = `{
                 "replies": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Comment"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Comment"
                     }
                 },
                 "reply_count": {
@@ -3477,21 +3477,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "postgres.CommentLike": {
+        "social_server_internal_models_postgres.CommentLike": {
             "type": "object",
             "properties": {
                 "comment": {
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.Comment"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Comment"
                         }
                     ]
                 },
@@ -3512,14 +3512,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "postgres.FriendRequest": {
+        "social_server_internal_models_postgres.FriendRequest": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3532,7 +3532,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "receiver": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "receiver_id": {
                     "type": "integer"
@@ -3541,7 +3541,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.User"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.User"
                         }
                     ]
                 },
@@ -3552,7 +3552,7 @@ const docTemplate = `{
                     "description": "pending, accepted, rejected",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.FriendRequestStatus"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.FriendRequestStatus"
                         }
                     ]
                 },
@@ -3561,7 +3561,7 @@ const docTemplate = `{
                 }
             }
         },
-        "postgres.FriendRequestStatus": {
+        "social_server_internal_models_postgres.FriendRequestStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -3574,7 +3574,7 @@ const docTemplate = `{
                 "FriendRequestRejected"
             ]
         },
-        "postgres.Like": {
+        "social_server_internal_models_postgres.Like": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3588,7 +3588,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     ]
                 },
@@ -3603,21 +3603,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "postgres.Post": {
+        "social_server_internal_models_postgres.Post": {
             "type": "object",
             "properties": {
                 "author": {
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.User"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.User"
                         }
                     ]
                 },
@@ -3630,7 +3630,7 @@ const docTemplate = `{
                 "comments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Comment"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Comment"
                     }
                 },
                 "content": {
@@ -3658,7 +3658,7 @@ const docTemplate = `{
                 "likes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Like"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Like"
                     }
                 },
                 "location": {
@@ -3667,7 +3667,7 @@ const docTemplate = `{
                 "media": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.PostMedia"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.PostMedia"
                     }
                 },
                 "mentioned_users": {
@@ -3675,7 +3675,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "privacy": {
-                    "$ref": "#/definitions/postgres.PostPrivacy"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.PostPrivacy"
                 },
                 "share_count": {
                     "type": "integer"
@@ -3683,7 +3683,7 @@ const docTemplate = `{
                 "shares": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Share"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Share"
                     }
                 },
                 "tags": {
@@ -3691,7 +3691,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/postgres.PostType"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.PostType"
                 },
                 "updated_at": {
                     "type": "string"
@@ -3702,12 +3702,12 @@ const docTemplate = `{
                 "views": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.PostView"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.PostView"
                     }
                 }
             }
         },
-        "postgres.PostMedia": {
+        "social_server_internal_models_postgres.PostMedia": {
             "type": "object",
             "properties": {
                 "alt_text": {
@@ -3742,7 +3742,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     ]
                 },
@@ -3769,7 +3769,7 @@ const docTemplate = `{
                 }
             }
         },
-        "postgres.PostPrivacy": {
+        "social_server_internal_models_postgres.PostPrivacy": {
             "type": "string",
             "enum": [
                 "public",
@@ -3788,7 +3788,7 @@ const docTemplate = `{
                 "PostPrivacyPrivate"
             ]
         },
-        "postgres.PostType": {
+        "social_server_internal_models_postgres.PostType": {
             "type": "string",
             "enum": [
                 "text",
@@ -3815,7 +3815,7 @@ const docTemplate = `{
                 "PostTypeAudio"
             ]
         },
-        "postgres.PostView": {
+        "social_server_internal_models_postgres.PostView": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3832,7 +3832,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     ]
                 },
@@ -3840,7 +3840,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "user": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "user_agent": {
                     "type": "string"
@@ -3855,7 +3855,7 @@ const docTemplate = `{
                 }
             }
         },
-        "postgres.Profile": {
+        "social_server_internal_models_postgres.Profile": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -3903,7 +3903,7 @@ const docTemplate = `{
                 }
             }
         },
-        "postgres.Share": {
+        "social_server_internal_models_postgres.Share": {
             "type": "object",
             "properties": {
                 "content": {
@@ -3921,7 +3921,7 @@ const docTemplate = `{
                     "description": "Relationships",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.Post"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                         }
                     ]
                 },
@@ -3929,20 +3929,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "privacy": {
-                    "$ref": "#/definitions/postgres.PostPrivacy"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.PostPrivacy"
                 },
                 "updated_at": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/postgres.User"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "postgres.User": {
+        "social_server_internal_models_postgres.User": {
             "type": "object",
             "properties": {
                 "ban_reason": {
@@ -3954,7 +3954,7 @@ const docTemplate = `{
                 "blocked_users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.User"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.User"
                     }
                 },
                 "created_at": {
@@ -3964,11 +3964,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "friends": {
-                    "description": "Relationships",
+                "friend_of": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.User"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.UserFriend"
                     }
                 },
                 "id": {
@@ -3994,12 +3993,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "profile": {
-                    "$ref": "#/definitions/postgres.Profile"
+                    "$ref": "#/definitions/social_server_internal_models_postgres.Profile"
                 },
                 "received_friend_requests": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.FriendRequest"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.FriendRequest"
                     }
                 },
                 "role": {
@@ -4008,23 +4007,65 @@ const docTemplate = `{
                 "sent_friend_requests": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.FriendRequest"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.FriendRequest"
                     }
                 },
                 "settings": {
                     "description": "Embedded settings",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/postgres.UserSettings"
+                            "$ref": "#/definitions/social_server_internal_models_postgres.UserSettings"
                         }
                     ]
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "user_friends": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/social_server_internal_models_postgres.UserFriend"
+                    }
                 }
             }
         },
-        "postgres.UserSettings": {
+        "social_server_internal_models_postgres.UserFriend": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "friend": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                },
+                "friend_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                        }
+                    ]
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.UserSettings": {
             "type": "object",
             "properties": {
                 "notifications_email": {
@@ -4055,7 +4096,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.AcceptFriendRequest": {
+        "social_server_internal_models_requests.AcceptFriendRequest": {
             "type": "object",
             "required": [
                 "user_id"
@@ -4066,7 +4107,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.ChangePasswordRequest": {
+        "social_server_internal_models_requests.ChangePasswordRequest": {
             "type": "object",
             "required": [
                 "current_password",
@@ -4082,7 +4123,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.CreateCommentRequest": {
+        "social_server_internal_models_requests.CreateCommentRequest": {
             "type": "object",
             "required": [
                 "content"
@@ -4102,7 +4143,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.CreatePostRequest": {
+        "social_server_internal_models_requests.CreatePostRequest": {
             "type": "object",
             "required": [
                 "type"
@@ -4117,11 +4158,11 @@ const docTemplate = `{
                 "media": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/requests.PostMediaRequest"
+                        "$ref": "#/definitions/social_server_internal_models_requests.PostMediaRequest"
                     }
                 },
                 "privacy": {
-                    "$ref": "#/definitions/requests.PostPrivacy"
+                    "$ref": "#/definitions/social_server_internal_models_requests.PostPrivacy"
                 },
                 "tags": {
                     "type": "array",
@@ -4130,11 +4171,11 @@ const docTemplate = `{
                     }
                 },
                 "type": {
-                    "$ref": "#/definitions/requests.PostType"
+                    "$ref": "#/definitions/social_server_internal_models_requests.PostType"
                 }
             }
         },
-        "requests.DeclineFriendRequest": {
+        "social_server_internal_models_requests.DeclineFriendRequest": {
             "type": "object",
             "required": [
                 "user_id"
@@ -4145,7 +4186,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.InitiateCallRequest": {
+        "social_server_internal_models_requests.InitiateCallRequest": {
             "type": "object",
             "required": [
                 "callee_id",
@@ -4165,7 +4206,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.LoginRequest": {
+        "social_server_internal_models_requests.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -4189,7 +4230,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.PostMediaRequest": {
+        "social_server_internal_models_requests.PostMediaRequest": {
             "type": "object",
             "required": [
                 "type",
@@ -4231,7 +4272,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.PostPrivacy": {
+        "social_server_internal_models_requests.PostPrivacy": {
             "type": "string",
             "enum": [
                 "public",
@@ -4247,7 +4288,7 @@ const docTemplate = `{
                 "PostPrivacyPrivate"
             ]
         },
-        "requests.PostType": {
+        "social_server_internal_models_requests.PostType": {
             "type": "string",
             "enum": [
                 "text",
@@ -4269,7 +4310,7 @@ const docTemplate = `{
                 "PostTypeAudio"
             ]
         },
-        "requests.RefreshTokenRequest": {
+        "social_server_internal_models_requests.RefreshTokenRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -4280,7 +4321,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.RegisterRequest": {
+        "social_server_internal_models_requests.RegisterRequest": {
             "type": "object",
             "required": [
                 "accept_privacy",
@@ -4304,7 +4345,7 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.ResetPasswordRequest": {
+        "social_server_internal_models_requests.ResetPasswordRequest": {
             "type": "object",
             "required": [
                 "new_password",
@@ -4320,18 +4361,18 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.SharePostRequest": {
+        "social_server_internal_models_requests.SharePostRequest": {
             "type": "object",
             "properties": {
                 "content": {
                     "type": "string"
                 },
                 "privacy": {
-                    "$ref": "#/definitions/requests.PostPrivacy"
+                    "$ref": "#/definitions/social_server_internal_models_requests.PostPrivacy"
                 }
             }
         },
-        "requests.UpdatePostRequest": {
+        "social_server_internal_models_requests.UpdatePostRequest": {
             "type": "object",
             "properties": {
                 "content": {
@@ -4341,7 +4382,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "privacy": {
-                    "$ref": "#/definitions/requests.PostPrivacy"
+                    "$ref": "#/definitions/social_server_internal_models_requests.PostPrivacy"
                 },
                 "tags": {
                     "type": "array",
@@ -4351,13 +4392,13 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.ActiveCallsResponse": {
+        "social_server_internal_models_responses.ActiveCallsResponse": {
             "type": "object",
             "properties": {
                 "calls": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/responses.CallResponse"
+                        "$ref": "#/definitions/social_server_internal_models_responses.CallResponse"
                     }
                 },
                 "total": {
@@ -4365,7 +4406,7 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.CallDetailResponse": {
+        "social_server_internal_models_responses.CallDetailResponse": {
             "type": "object",
             "properties": {
                 "callee_id": {
@@ -4392,7 +4433,7 @@ const docTemplate = `{
                 "participants": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.CallParticipant"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.CallParticipant"
                     }
                 },
                 "room_id": {
@@ -4412,13 +4453,13 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.CallHistoriesResponse": {
+        "social_server_internal_models_responses.CallHistoriesResponse": {
             "type": "object",
             "properties": {
                 "calls": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Call"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Call"
                     }
                 },
                 "next_cursor": {
@@ -4426,7 +4467,7 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.CallResponse": {
+        "social_server_internal_models_responses.CallResponse": {
             "type": "object",
             "properties": {
                 "callee_id": {
@@ -4452,7 +4493,7 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.CallStatsResponse": {
+        "social_server_internal_models_responses.CallStatsResponse": {
             "type": "object",
             "properties": {
                 "stats": {
@@ -4461,13 +4502,13 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.CommentResponse": {
+        "social_server_internal_models_responses.CommentResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Comment"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Comment"
                     }
                 },
                 "next_cursor": {
@@ -4478,13 +4519,13 @@ const docTemplate = `{
                 }
             }
         },
-        "responses.PostResponse": {
+        "social_server_internal_models_responses.PostResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/postgres.Post"
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Post"
                     }
                 },
                 "next_cursor": {
@@ -4495,18 +4536,18 @@ const docTemplate = `{
                 }
             }
         },
-        "services.AutoCompleteResponse": {
+        "social_server_internal_services.AutoCompleteResponse": {
             "type": "object",
             "properties": {
                 "suggestions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/services.AutoCompleteSuggestion"
+                        "$ref": "#/definitions/social_server_internal_services.AutoCompleteSuggestion"
                     }
                 }
             }
         },
-        "services.AutoCompleteSuggestion": {
+        "social_server_internal_services.AutoCompleteSuggestion": {
             "type": "object",
             "properties": {
                 "score": {
@@ -4520,7 +4561,7 @@ const docTemplate = `{
                 }
             }
         },
-        "services.DateRange": {
+        "social_server_internal_services.DateRange": {
             "type": "object",
             "properties": {
                 "from": {
@@ -4531,14 +4572,14 @@ const docTemplate = `{
                 }
             }
         },
-        "services.SearchRequest": {
+        "social_server_internal_services.SearchRequest": {
             "type": "object",
             "properties": {
                 "author_id": {
                     "type": "string"
                 },
                 "date_range": {
-                    "$ref": "#/definitions/services.DateRange"
+                    "$ref": "#/definitions/social_server_internal_services.DateRange"
                 },
                 "facets": {
                     "type": "array",
@@ -4586,7 +4627,7 @@ const docTemplate = `{
                 }
             }
         },
-        "services.SearchResponse": {
+        "social_server_internal_services.SearchResponse": {
             "type": "object",
             "properties": {
                 "facets": {
@@ -4605,7 +4646,7 @@ const docTemplate = `{
                 "results": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/services.SearchResult"
+                        "$ref": "#/definitions/social_server_internal_services.SearchResult"
                     }
                 },
                 "size": {
@@ -4626,7 +4667,7 @@ const docTemplate = `{
                 }
             }
         },
-        "services.SearchResult": {
+        "social_server_internal_services.SearchResult": {
             "type": "object",
             "properties": {
                 "author_id": {

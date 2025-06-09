@@ -48,6 +48,7 @@ func (s *CallService) CreateCall(callerID, calleeID uint, callType, roomID strin
 	// Check if caller has active call
 	activeCall, err := s.callRepo.GetActiveCall(callerID)
 	if err == nil && activeCall != nil {
+		// TODO: Implement logic to handle active call for caller
 		return activeCall, nil
 		// return nil, fmt.Errorf("caller already in active call")
 	}
