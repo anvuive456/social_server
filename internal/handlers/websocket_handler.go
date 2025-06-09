@@ -16,14 +16,14 @@ import (
 )
 
 type WebSocketHandler struct {
-	authService        *services.AuthService
-	callService        *services.CallService
-	onlineStatusService *services.OnlineStatusService
-	connections        map[string]*WebSocketConnection
-	rooms              map[string]*models.Room
-	userConns          map[uint]string // userID -> connectionID
-	mutex              sync.RWMutex
-	upgrader           websocket.Upgrader
+	authService *services.AuthService
+	callService *services.CallService
+	// onlineStatusService *services.OnlineStatusService
+	connections map[string]*WebSocketConnection
+	rooms       map[string]*models.Room
+	userConns   map[uint]string // userID -> connectionID
+	mutex       sync.RWMutex
+	upgrader    websocket.Upgrader
 }
 
 type WebSocketConnection struct {
@@ -37,14 +37,17 @@ type WebSocketConnection struct {
 	CloseChan chan bool
 }
 
-func NewWebSocketHandler(authService *services.AuthService, callService *services.CallService, onlineStatusService *services.OnlineStatusService) *WebSocketHandler {
+func NewWebSocketHandler(authService *services.AuthService, callService *services.CallService,
+
+// onlineStatusService *services.OnlineStatusService
+) *WebSocketHandler {
 	handler := &WebSocketHandler{
-		authService:         authService,
-		callService:         callService,
-		onlineStatusService: onlineStatusService,
-		connections:         make(map[string]*WebSocketConnection),
-		rooms:               make(map[string]*models.Room),
-		userConns:           make(map[uint]string),
+		authService: authService,
+		callService: callService,
+		// onlineStatusService: onlineStatusService,
+		connections: make(map[string]*WebSocketConnection),
+		rooms:       make(map[string]*models.Room),
+		userConns:   make(map[uint]string),
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// In production, implement proper origin checking
@@ -56,7 +59,7 @@ func NewWebSocketHandler(authService *services.AuthService, callService *service
 	}
 
 	// Register callback for online status changes
-	onlineStatusService.RegisterStatusCallback(handler.handleOnlineStatusChange)
+	// onlineStatusService.RegisterStatusCallback(handler.handleOnlineStatusChange)
 
 	return handler
 }
@@ -95,10 +98,10 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 	h.registerConnection(wsConn)
 
 	// Set user online in status service
-	err = h.onlineStatusService.SetUserOnline(userID, connID)
-	if err != nil {
-		log.Printf("Failed to set user %d online: %v", userID, err)
-	}
+	// err = h.onlineStatusService.SetUserOnline(userID, connID)
+	// if err != nil {
+	// 	log.Printf("Failed to set user %d online: %v", userID, err)
+	// }
 
 	// Start connection handlers
 	go h.handleConnection(wsConn)
@@ -136,10 +139,10 @@ func (h *WebSocketHandler) unregisterConnection(connID string) {
 		}
 
 		// Set user offline in status service
-		err := h.onlineStatusService.SetUserOffline(conn.UserID)
-		if err != nil {
-			log.Printf("Failed to set user %d offline: %v", conn.UserID, err)
-		}
+		// err := h.onlineStatusService.SetUserOffline(conn.UserID)
+		// if err != nil {
+		// 	log.Printf("Failed to set user %d offline: %v", conn.UserID, err)
+		// }
 
 		delete(h.connections, connID)
 		delete(h.userConns, conn.UserID)
@@ -416,10 +419,10 @@ func (h *WebSocketHandler) handleHeartbeat(conn *WebSocketConnection, message *m
 	conn.LastPing = time.Now()
 
 	// Update heartbeat in online status service
-	err := h.onlineStatusService.UpdateHeartbeat(conn.UserID)
-	if err != nil {
-		log.Printf("Failed to update heartbeat for user %d: %v", conn.UserID, err)
-	}
+	// err := h.onlineStatusService.UpdateHeartbeat(conn.UserID)
+	// if err != nil {
+	// 	log.Printf("Failed to update heartbeat for user %d: %v", conn.UserID, err)
+	// }
 
 	// Send heartbeat response
 	response := models.WSMessage{
@@ -578,12 +581,12 @@ func (h *WebSocketHandler) GetConnectionStats() map[string]interface{} {
 	}
 
 	// Add online status service stats
-	if h.onlineStatusService != nil {
-		onlineStats := h.onlineStatusService.GetConnectionStats()
-		for key, value := range onlineStats {
-			stats[key] = value
-		}
-	}
+	// if h.onlineStatusService != nil {
+	// 	onlineStats := h.onlineStatusService.GetConnectionStats()
+	// 	for key, value := range onlineStats {
+	// 		stats[key] = value
+	// 	}
+	// }
 
 	return stats
 }
@@ -591,30 +594,30 @@ func (h *WebSocketHandler) GetConnectionStats() map[string]interface{} {
 // handleOnlineStatusChange broadcasts online status changes to relevant users
 func (h *WebSocketHandler) handleOnlineStatusChange(update services.OnlineStatusUpdate) {
 	// Create websocket message for online status change
-	message := models.WSMessage{
-		Type:      models.MessageTypeUserOnlineStatus,
-		From:      update.UserID,
-		Timestamp: time.Now().Format(time.RFC3339),
-		Data: h.marshalData(models.UserOnlineStatusMessage{
-			UserID:   update.UserID,
-			IsOnline: update.IsOnline,
-			LastSeen: update.LastSeen,
-			Username: update.Username,
-		}),
-	}
+	// message := models.WSMessage{
+	// 	Type:      models.MessageTypeUserOnlineStatus,
+	// 	From:      update.UserID,
+	// 	Timestamp: time.Now().Format(time.RFC3339),
+	// 	Data: h.marshalData(models.UserOnlineStatusMessage{
+	// 		UserID:   update.UserID,
+	// 		IsOnline: update.IsOnline,
+	// 		LastSeen: update.LastSeen,
+	// 		Username: update.Username,
+	// 	}),
+	// }
 
 	// Get online friends of this user to notify them
-	friendIDs, err := h.onlineStatusService.GetOnlineFriends(update.UserID)
-	if err != nil {
-		log.Printf("Failed to get online friends for user %d: %v", update.UserID, err)
-		return
-	}
+	// friendIDs, err := h.onlineStatusService.GetOnlineFriends(update.UserID)
+	// if err != nil {
+	// 	log.Printf("Failed to get online friends for user %d: %v", update.UserID, err)
+	// 	return
+	// }
 
 	// Send status update to online friends
-	for _, friendID := range friendIDs {
-		h.sendToUser(friendID, message)
-	}
+	// for _, friendID := range friendIDs {
+	// 	h.sendToUser(friendID, message)
+	// }
 
-	log.Printf("Broadcasted online status change for user %d (online: %v) to %d friends", 
-		update.UserID, update.IsOnline, len(friendIDs))
+	// log.Printf("Broadcasted online status change for user %d (online: %v) to %d friends",
+	// update.UserID, update.IsOnline, len(friendIDs))
 }

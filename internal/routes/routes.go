@@ -39,7 +39,8 @@ func NewRouter(
 	mailService *services.MailService,
 	onlineStatusService *services.OnlineStatusService,
 ) *Router {
-	wsHandler := handlers.NewWebSocketHandler(authService, callService, onlineStatusService)
+	wsHandler := handlers.NewWebSocketHandler(authService, callService)
+
 	onlineStatusHandler := handlers.NewOnlineStatusHandler(onlineStatusService, authService)
 
 	return &Router{
