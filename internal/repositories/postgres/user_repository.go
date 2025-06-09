@@ -111,7 +111,6 @@ func (r *userRepository) SearchUsers(currentUserID uint, query string, cursor pa
 		Select("users.id as user_id, users.email, profiles.id as profile_id, profiles.first_name, profiles.last_name, profiles.display_name, profiles.avatar, profiles.avatar_hash, profiles.bio, profiles.date_of_birth, profiles.phone, profiles.created_at as profile_created_at, profiles.updated_at as profile_updated_at").
 		Joins("INNER JOIN profiles ON users.id = profiles.user_id").
 		Where("users.is_active = ?", true).
-		Where("profiles.is_default = ?", true).
 		Where("users.id != ?", currentUserID)
 
 	// Add search conditions
