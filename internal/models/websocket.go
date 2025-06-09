@@ -9,20 +9,20 @@ import (
 type MessageType string
 
 const (
-	MessageTypeConnected       MessageType = "connected"
-	MessageTypeOffer           MessageType = "offer"
-	MessageTypeAnswer          MessageType = "answer"
-	MessageTypeICECandidate    MessageType = "ice_candidate"
-	MessageTypeJoinRoom        MessageType = "join_room"
-	MessageTypeLeaveRoom       MessageType = "leave_room"
-	MessageTypeCallRequest     MessageType = "call_request"
-	MessageTypeCallResponse    MessageType = "call_response"
-	MessageTypeCallEnd         MessageType = "call_end"
-	MessageTypeError           MessageType = "error"
-	MessageTypeHeartbeat       MessageType = "heartbeat"
-	MessageTypeUserJoined      MessageType = "user_joined"
-	MessageTypeUserLeft        MessageType = "user_left"
-	MessageTypeCallStatus      MessageType = "call_status"
+	MessageTypeConnected        MessageType = "connected"
+	MessageTypeOffer            MessageType = "offer"
+	MessageTypeAnswer           MessageType = "answer"
+	MessageTypeICECandidate     MessageType = "ice_candidate"
+	MessageTypeJoinRoom         MessageType = "join_room"
+	MessageTypeLeaveRoom        MessageType = "leave_room"
+	MessageTypeCallRequest      MessageType = "call_request"
+	MessageTypeCallResponse     MessageType = "call_response"
+	MessageTypeCallEnd          MessageType = "call_end"
+	MessageTypeError            MessageType = "error"
+	MessageTypeHeartbeat        MessageType = "heartbeat"
+	MessageTypeUserJoined       MessageType = "user_joined"
+	MessageTypeUserLeft         MessageType = "user_left"
+	MessageTypeCallStatus       MessageType = "call_status"
 	MessageTypeUserOnlineStatus MessageType = "user_online_status"
 )
 
@@ -72,7 +72,7 @@ type LeaveRoomMessage struct {
 
 // Call request message
 type CallRequestMessage struct {
-	// CallerID uint   `json:"caller_id,omitempty"`
+	CallerID uint   `json:"caller_id,omitempty"`
 	CalleeID uint   `json:"callee_id"`
 	CallType string `json:"call_type"` // video, audio
 	RoomID   string `json:"room_id"`

@@ -305,7 +305,7 @@ func (h *WebSocketHandler) handleCallRequest(conn *WebSocketConnection, message 
 	}
 
 	// Create call in database
-	_, err := h.callService.CreateCall(conn.UserID, callReq.CalleeID, callReq.CallType, callReq.RoomID)
+	caller, err := h.callService.CreateCall(conn.UserID, callReq.CalleeID, callReq.CallType, callReq.RoomID)
 	if err != nil {
 		h.sendError(conn, "call_creation_failed", err.Error())
 		return
@@ -319,10 +319,10 @@ func (h *WebSocketHandler) handleCallRequest(conn *WebSocketConnection, message 
 		RoomID:    callReq.RoomID,
 		Timestamp: time.Now().Format(time.RFC3339),
 		Data: h.marshalData(models.CallRequestMessage{
-			// CallerID: conn.UserID,
-			CalleeID: callReq.CalleeID,
-			CallType: callReq.CallType,
-			RoomID:   callReq.RoomID,
+			CallerID: caller.ID,
+			CalleeID: *caller.CalleeID,
+			CallType: caller.Type,
+			RoomID:   caller.RoomID,
 		}),
 	})
 
