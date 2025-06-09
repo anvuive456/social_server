@@ -1,0 +1,177 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: social_server_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: social_media
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_password_here}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+    networks:
+      - social_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d social_media"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: social_server_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --replica-read-only no
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - social_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Social Server Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: social_server_app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8081:8081"  # WebRTC signaling port
+    environment:
+      # Server Configuration
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8080
+      ENVIRONMENT: production
+      SERVER_READ_TIMEOUT: 30s
+      SERVER_WRITE_TIMEOUT: 30s
+      SERVER_SHUTDOWN_TIMEOUT: 30s
+      MAX_REQUEST_SIZE: 33554432
+      ENABLE_CORS: true
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+
+      # Database Configuration
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_password_here}
+      POSTGRES_DATABASE: social_media
+      POSTGRES_SSLMODE: disable
+      POSTGRES_CONNECT_TIMEOUT: 10s
+      POSTGRES_QUERY_TIMEOUT: 30s
+      POSTGRES_MAX_OPEN_CONNECTIONS: 25
+      POSTGRES_MAX_IDLE_CONNECTIONS: 5
+      POSTGRES_CONN_MAX_LIFETIME: 5m
+
+      # Authentication Configuration
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production-make-it-long-and-secure}
+      JWT_EXPIRATION: 24h
+      REFRESH_EXPIRATION: 168h
+      RSA_PRIVATE_KEY_PATH: keys/private.pem
+      RSA_PUBLIC_KEY_PATH: keys/public.pem
+      PASSWORD_MIN_LENGTH: 8
+      MAX_LOGIN_ATTEMPTS: 5
+      LOCKOUT_DURATION: 15m
+      ENABLE_TWO_FACTOR: false
+
+      # WebRTC Configuration
+      STUN_SERVERS: stun:stun.l.google.com:19302,stun:stun1.l.google.com:19302
+      WEBRTC_SIGNALING_PORT: 8081
+      WEBRTC_MAX_ROOM_SIZE: 10
+      WEBRTC_CALL_TIMEOUT: 30s
+      WEBRTC_HEARTBEAT_INTERVAL: 30s
+
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_DATABASE: 0
+      REDIS_MAX_RETRIES: 3
+      REDIS_RETRY_DELAY: 200ms
+      REDIS_POOL_SIZE: 10
+      REDIS_MIN_IDLE_CONNS: 5
+      REDIS_MAX_CONN_AGE: 30m
+      REDIS_POOL_TIMEOUT: 4s
+      REDIS_IDLE_TIMEOUT: 5m
+      REDIS_IDLE_CHECK_FREQ: 1m
+
+      # File Upload Configuration
+      MAX_FILE_SIZE: 10485760
+      UPLOAD_PATH: uploads
+      ALLOWED_IMAGE_TYPES: jpg,jpeg,png,gif,webp
+      ALLOWED_VIDEO_TYPES: mp4,avi,mov,webm
+
+      # Email Configuration
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-your-email@gmail.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-your-app-password}
+      SMTP_FROM: ${SMTP_FROM:-Social Media <noreply@yourdomain.com>}
+
+      # External Services
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+
+      # Logging
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+      LOG_OUTPUT: stdout
+
+      # Rate Limiting
+      RATE_LIMIT_REQUESTS_PER_MINUTE: 60
+      RATE_LIMIT_BURST_SIZE: 10
+      AUTH_RATE_LIMIT_REQUESTS_PER_MINUTE: 10
+      AUTH_RATE_LIMIT_BURST_SIZE: 5
+
+    volumes:
+      - app_uploads:/app/uploads
+      - app_search_index:/app/search_index
+    networks:
+      - social_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Networks
+networks:
+  social_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_uploads:
+    driver: local
+  app_search_index:
+    driver: local

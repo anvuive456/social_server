@@ -1,0 +1,3127 @@
+basePath: /api/v1
+definitions:
+  models.ICEServerConfig:
+    properties:
+      credential:
+        type: string
+      urls:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    type: object
+  models.WebRTCConfig:
+    properties:
+      ice_servers:
+        items:
+          $ref: '#/definitions/models.ICEServerConfig'
+        type: array
+    type: object
+  paginator.Cursor:
+    properties:
+      after:
+        type: string
+      before:
+        type: string
+    type: object
+  postgres.Call:
+    properties:
+      answer_sdp:
+        type: string
+      callee:
+        $ref: '#/definitions/postgres.User'
+      callee_id:
+        type: integer
+      caller:
+        allOf:
+        - $ref: '#/definitions/postgres.User'
+        description: Relationships
+      caller_id:
+        type: integer
+      created_at:
+        description: Timestamps
+        type: string
+      duration:
+        description: in seconds
+        type: integer
+      ended_at:
+        type: string
+      id:
+        type: integer
+      is_group_call:
+        type: boolean
+      offer_sdp:
+        description: WebRTC specific
+        type: string
+      participants:
+        items:
+          $ref: '#/definitions/postgres.CallParticipant'
+        type: array
+      room_id:
+        type: string
+      started_at:
+        type: string
+      status:
+        description: pending, ringing, ongoing, ended, declined, missed
+        type: string
+      type:
+        description: video, audio
+        type: string
+      updated_at:
+        type: string
+    type: object
+  postgres.CallParticipant:
+    properties:
+      call:
+        allOf:
+        - $ref: '#/definitions/postgres.User'
+        description: Relationships
+      call_id:
+        type: integer
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_muted:
+        type: boolean
+      joined_at:
+        type: string
+      left_at:
+        type: string
+      peer_id:
+        description: WebRTC specific
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/postgres.User'
+      user_id:
+        type: integer
+    type: object
+  postgres.Comment:
+    properties:
+      content:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      edited_at:
+        type: string
+      id:
+        type: integer
+      is_edited:
+        type: boolean
+      like_count:
+        type: integer
+      likes:
+        items:
+          $ref: '#/definitions/postgres.CommentLike'
+        type: array
+      media:
+        description: JSON array as string
+        type: string
+      mentioned_users:
+        description: JSON array as string
+        type: string
+      parent:
+        $ref: '#/definitions/postgres.Comment'
+      parent_id:
+        type: integer
+      post:
+        allOf:
+        - $ref: '#/definitions/postgres.Post'
+        description: Relationships
+      post_id:
+        type: integer
+      replies:
+        items:
+          $ref: '#/definitions/postgres.Comment'
+        type: array
+      reply_count:
+        type: integer
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/postgres.User'
+      user_id:
+        type: integer
+    type: object
+  postgres.CommentLike:
+    properties:
+      comment:
+        allOf:
+        - $ref: '#/definitions/postgres.Comment'
+        description: Relationships
+      comment_id:
+        type: integer
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      type:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/postgres.User'
+      user_id:
+        type: integer
+    type: object
+  postgres.FriendRequest:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      receiver:
+        $ref: '#/definitions/postgres.User'
+      receiver_id:
+        type: integer
+      sender:
+        allOf:
+        - $ref: '#/definitions/postgres.User'
+        description: Relationships
+      sender_id:
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/postgres.FriendRequestStatus'
+        description: pending, accepted, rejected
+      updated_at:
+        type: string
+    type: object
+  postgres.FriendRequestStatus:
+    enum:
+    - pending
+    - accepted
+    - rejected
+    type: string
+    x-enum-varnames:
+    - FriendRequestPending
+    - FriendRequestAccepted
+    - FriendRequestRejected
+  postgres.Like:
+    properties:
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      post:
+        allOf:
+        - $ref: '#/definitions/postgres.Post'
+        description: Relationships
+      post_id:
+        type: integer
+      type:
+        description: like, love, haha, wow, sad, angry
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/postgres.User'
+      user_id:
+        type: integer
+    type: object
+  postgres.Post:
+    properties:
+      author:
+        allOf:
+        - $ref: '#/definitions/postgres.User'
+        description: Relationships
+      author_id:
+        type: integer
+      comment_count:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/postgres.Comment'
+        type: array
+      content:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      edited_at:
+        type: string
+      id:
+        type: integer
+      is_archived:
+        type: boolean
+      is_edited:
+        type: boolean
+      like_count:
+        type: integer
+      likes:
+        items:
+          $ref: '#/definitions/postgres.Like'
+        type: array
+      location:
+        type: string
+      media:
+        items:
+          $ref: '#/definitions/postgres.PostMedia'
+        type: array
+      mentioned_users:
+        description: JSON array as string
+        type: string
+      privacy:
+        $ref: '#/definitions/postgres.PostPrivacy'
+      share_count:
+        type: integer
+      shares:
+        items:
+          $ref: '#/definitions/postgres.Share'
+        type: array
+      tags:
+        description: JSON array as string
+        type: string
+      type:
+        $ref: '#/definitions/postgres.PostType'
+      updated_at:
+        type: string
+      view_count:
+        type: integer
+      views:
+        items:
+          $ref: '#/definitions/postgres.PostView'
+        type: array
+    type: object
+  postgres.PostMedia:
+    properties:
+      alt_text:
+        type: string
+      blur_hash:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      duration:
+        type: integer
+      filename:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      mime_type:
+        type: string
+      order:
+        type: integer
+      post:
+        allOf:
+        - $ref: '#/definitions/postgres.Post'
+        description: Relationships
+      post_id:
+        type: integer
+      size:
+        type: integer
+      thumbnail:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+      width:
+        type: integer
+    type: object
+  postgres.PostPrivacy:
+    enum:
+    - public
+    - friends
+    - private
+    - public
+    - friends
+    - private
+    - public
+    - friends
+    - private
+    type: string
+    x-enum-varnames:
+    - PostPrivacyPublic
+    - PostPrivacyFriends
+    - PostPrivacyPrivate
+  postgres.PostType:
+    enum:
+    - text
+    - image
+    - video
+    - link
+    - audio
+    - text
+    - image
+    - video
+    - link
+    - audio
+    - text
+    - image
+    - video
+    - link
+    - audio
+    type: string
+    x-enum-varnames:
+    - PostTypeText
+    - PostTypeImage
+    - PostTypeVideo
+    - PostTypeLink
+    - PostTypeAudio
+  postgres.PostView:
+    properties:
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      ip_address:
+        type: string
+      post:
+        allOf:
+        - $ref: '#/definitions/postgres.Post'
+        description: Relationships
+      post_id:
+        type: integer
+      user:
+        $ref: '#/definitions/postgres.User'
+      user_agent:
+        type: string
+      user_id:
+        description: NULL for anonymous views
+        type: integer
+      view_duration:
+        description: in seconds
+        type: integer
+    type: object
+  postgres.Profile:
+    properties:
+      avatar:
+        type: string
+      avatar_hash:
+        type: string
+      bio:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      date_of_birth:
+        type: string
+      display_name:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      wall_image:
+        type: string
+      wall_image_hash:
+        type: string
+    type: object
+  postgres.Share:
+    properties:
+      content:
+        description: Optional comment when sharing
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      post:
+        allOf:
+        - $ref: '#/definitions/postgres.Post'
+        description: Relationships
+      post_id:
+        type: integer
+      privacy:
+        $ref: '#/definitions/postgres.PostPrivacy'
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/postgres.User'
+      user_id:
+        type: integer
+    type: object
+  postgres.User:
+    properties:
+      ban_reason:
+        type: string
+      banned_until:
+        type: string
+      blocked_users:
+        items:
+          $ref: '#/definitions/postgres.User'
+        type: array
+      created_at:
+        description: Timestamps
+        type: string
+      email:
+        type: string
+      friends:
+        description: Relationships
+        items:
+          $ref: '#/definitions/postgres.User'
+        type: array
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_banned:
+        type: boolean
+      is_online:
+        type: boolean
+      is_verified:
+        type: boolean
+      last_seen:
+        type: string
+      permissions:
+        description: JSON array of permissions
+        type: string
+      profile:
+        $ref: '#/definitions/postgres.Profile'
+      received_friend_requests:
+        items:
+          $ref: '#/definitions/postgres.FriendRequest'
+        type: array
+      role:
+        type: string
+      sent_friend_requests:
+        items:
+          $ref: '#/definitions/postgres.FriendRequest'
+        type: array
+      settings:
+        allOf:
+        - $ref: '#/definitions/postgres.UserSettings'
+        description: Embedded settings
+      updated_at:
+        type: string
+    type: object
+  postgres.UserSettings:
+    properties:
+      notifications_email:
+        description: Notification settings
+        type: boolean
+      notifications_friend_requests:
+        type: boolean
+      notifications_messages:
+        type: boolean
+      notifications_posts:
+        type: boolean
+      notifications_push:
+        type: boolean
+      privacy_allow_friend_requests:
+        type: boolean
+      privacy_profile_visibility:
+        description: Privacy settings
+        type: string
+      privacy_show_online_status:
+        type: boolean
+    type: object
+  requests.AcceptFriendRequest:
+    properties:
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
+  requests.ChangePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        minLength: 6
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
+  requests.CreateCommentRequest:
+    properties:
+      content:
+        type: string
+      mentioned_users:
+        items:
+          type: integer
+        type: array
+      parent_id:
+        type: integer
+    required:
+    - content
+    type: object
+  requests.CreatePostRequest:
+    properties:
+      content:
+        type: string
+      location:
+        type: string
+      media:
+        items:
+          $ref: '#/definitions/requests.PostMediaRequest'
+        type: array
+      privacy:
+        $ref: '#/definitions/requests.PostPrivacy'
+      tags:
+        items:
+          type: string
+        type: array
+      type:
+        $ref: '#/definitions/requests.PostType'
+    required:
+    - type
+    type: object
+  requests.DeclineFriendRequest:
+    properties:
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
+  requests.InitiateCallRequest:
+    properties:
+      callee_id:
+        minimum: 1
+        type: integer
+      type:
+        enum:
+        - video
+        - audio
+        type: string
+    required:
+    - callee_id
+    - type
+    type: object
+  requests.LoginRequest:
+    properties:
+      device_info:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      platform:
+        type: string
+      remember_me:
+        type: boolean
+    required:
+    - email
+    - password
+    type: object
+  requests.PostMediaRequest:
+    properties:
+      alt_text:
+        type: string
+      duration:
+        type: integer
+      filename:
+        type: string
+      height:
+        type: integer
+      mime_type:
+        type: string
+      order:
+        type: integer
+      size:
+        type: integer
+      thumbnail:
+        type: string
+      type:
+        type: string
+      url:
+        type: string
+      width:
+        type: integer
+    required:
+    - type
+    - url
+    type: object
+  requests.PostPrivacy:
+    enum:
+    - public
+    - friends
+    - private
+    - public
+    - friends
+    - private
+    type: string
+    x-enum-varnames:
+    - PostPrivacyPublic
+    - PostPrivacyFriends
+    - PostPrivacyPrivate
+  requests.PostType:
+    enum:
+    - text
+    - image
+    - video
+    - link
+    - audio
+    - text
+    - image
+    - video
+    - link
+    - audio
+    type: string
+    x-enum-varnames:
+    - PostTypeText
+    - PostTypeImage
+    - PostTypeVideo
+    - PostTypeLink
+    - PostTypeAudio
+  requests.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  requests.RegisterRequest:
+    properties:
+      accept_privacy:
+        type: boolean
+      accept_terms:
+        type: boolean
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - accept_privacy
+    - accept_terms
+    - email
+    - password
+    type: object
+  requests.ResetPasswordRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
+  requests.SharePostRequest:
+    properties:
+      content:
+        type: string
+      privacy:
+        $ref: '#/definitions/requests.PostPrivacy'
+    type: object
+  requests.UpdatePostRequest:
+    properties:
+      content:
+        type: string
+      location:
+        type: string
+      privacy:
+        $ref: '#/definitions/requests.PostPrivacy'
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  responses.ActiveCallsResponse:
+    properties:
+      calls:
+        items:
+          $ref: '#/definitions/responses.CallResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  responses.CallDetailResponse:
+    properties:
+      callee_id:
+        type: integer
+      caller_id:
+        type: integer
+      created_at:
+        type: string
+      duration:
+        type: integer
+      ended_at:
+        type: string
+      id:
+        type: integer
+      is_group_call:
+        type: boolean
+      participants:
+        items:
+          $ref: '#/definitions/postgres.CallParticipant'
+        type: array
+      room_id:
+        type: string
+      started_at:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  responses.CallHistoriesResponse:
+    properties:
+      calls:
+        items:
+          $ref: '#/definitions/postgres.Call'
+        type: array
+      next_cursor:
+        $ref: '#/definitions/paginator.Cursor'
+    type: object
+  responses.CallResponse:
+    properties:
+      callee_id:
+        type: integer
+      caller_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      room_id:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  responses.CallStatsResponse:
+    properties:
+      stats:
+        additionalProperties: true
+        type: object
+    type: object
+  responses.CommentResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/postgres.Comment'
+        type: array
+      next_cursor:
+        $ref: '#/definitions/paginator.Cursor'
+      total:
+        type: integer
+    type: object
+  responses.PostResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/postgres.Post'
+        type: array
+      next_cursor:
+        $ref: '#/definitions/paginator.Cursor'
+      total:
+        type: integer
+    type: object
+  services.AutoCompleteResponse:
+    properties:
+      suggestions:
+        items:
+          $ref: '#/definitions/services.AutoCompleteSuggestion'
+        type: array
+    type: object
+  services.AutoCompleteSuggestion:
+    properties:
+      score:
+        type: number
+      text:
+        type: string
+      type:
+        type: string
+    type: object
+  services.DateRange:
+    properties:
+      from:
+        type: string
+      to:
+        type: string
+    type: object
+  services.SearchRequest:
+    properties:
+      author_id:
+        type: string
+      date_range:
+        $ref: '#/definitions/services.DateRange'
+      facets:
+        items:
+          type: string
+        type: array
+      filters:
+        additionalProperties:
+          type: string
+        type: object
+      from:
+        type: integer
+      fuzzy:
+        type: boolean
+      highlight:
+        type: boolean
+      privacy:
+        type: string
+      query:
+        type: string
+      size:
+        type: integer
+      sort_by:
+        description: relevance, date, popularity
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type:
+        description: post, user, comment
+        type: string
+    type: object
+  services.SearchResponse:
+    properties:
+      facets:
+        additionalProperties: true
+        type: object
+      has_more:
+        type: boolean
+      max_score:
+        type: number
+      page:
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/services.SearchResult'
+        type: array
+      size:
+        type: integer
+      suggestions:
+        items:
+          type: string
+        type: array
+      took:
+        description: Duration in milliseconds
+        type: integer
+      total:
+        type: integer
+    type: object
+  services.SearchResult:
+    properties:
+      author_id:
+        type: string
+      author_name:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      highlights:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      privacy:
+        type: string
+      score:
+        type: number
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A comprehensive social media backend with posts, video calling, and
+    file uploads
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Social Media Backend API
+  version: "2.0"
+paths:
+  /auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change current user's password
+      parameters:
+      - description: Password change data
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password changed successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request or current password incorrect
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - Authentication
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send password reset email to user
+      parameters:
+      - description: Email address
+        in: body
+        name: email
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reset email sent
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Forgot password
+      tags:
+      - Authentication
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email/username and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with tokens
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User login
+      tags:
+      - Authentication
+  /auth/logout:
+    post:
+      description: Invalidate current user session and tokens
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Logout failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - Authentication
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generate new access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New tokens generated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Refresh access token
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email and password
+      parameters:
+      - description: Registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registration successful with tokens
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request or registration failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register new user
+      tags:
+      - Authentication
+  /auth/resend-verification:
+    post:
+      consumes:
+      - application/json
+      description: Resend email verification link
+      parameters:
+      - description: Email address
+        in: body
+        name: email
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification email sent
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Resend verification email
+      tags:
+      - Authentication
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password using token from email
+      parameters:
+      - description: Reset password data
+        in: body
+        name: reset
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successful
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request or token
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reset password
+      tags:
+      - Authentication
+  /auth/verify-email:
+    get:
+      description: Verify user email address using token
+      parameters:
+      - description: Verification token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email verified successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid or expired token
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verify email
+      tags:
+      - Authentication
+  /calls:
+    post:
+      consumes:
+      - application/json
+      description: Create a new call and send call request to the callee
+      parameters:
+      - description: Call initiation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.InitiateCallRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.CallResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Initiate a new call
+      tags:
+      - calls
+  /calls/{id}:
+    get:
+      description: Get details of a specific call
+      parameters:
+      - description: Call ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.CallDetailResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get call details
+      tags:
+      - calls
+  /calls/{id}/accept:
+    post:
+      description: Accept an incoming call
+      parameters:
+      - description: Call ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Accept a call
+      tags:
+      - calls
+  /calls/{id}/decline:
+    post:
+      description: Decline an incoming call
+      parameters:
+      - description: Call ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Decline a call
+      tags:
+      - calls
+  /calls/{id}/end:
+    post:
+      description: End an ongoing call
+      parameters:
+      - description: Call ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: End a call
+      tags:
+      - calls
+  /calls/active:
+    get:
+      description: Get user's currently active calls
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.ActiveCallsResponse'
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get active calls
+      tags:
+      - calls
+  /calls/connection-stats:
+    get:
+      description: Get statistics about WebSocket connections (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get WebSocket connection statistics
+      tags:
+      - calls
+  /calls/history:
+    get:
+      description: Get user's call history with pagination
+      parameters:
+      - description: Pagination cursor
+        in: query
+        name: before
+        type: string
+      - description: Pagination cursor
+        in: query
+        name: after
+        type: string
+      - default: 20
+        description: Number of calls to return
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.CallHistoriesResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get call history
+      tags:
+      - calls
+  /calls/stats:
+    get:
+      description: Get user's call statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.CallStatsResponse'
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get call statistics
+      tags:
+      - calls
+  /calls/webrtc-config:
+    get:
+      description: Get STUN/TURN server configuration for WebRTC
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.WebRTCConfig'
+        "401":
+          description: Unauthorized
+          schema: {}
+      security:
+      - BearerAuth: []
+      summary: Get WebRTC configuration
+      tags:
+      - calls
+  /friends:
+    get:
+      description: Get list of user's friends with pagination
+      parameters:
+      - default: 20
+        description: Number of friends to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: before
+        type: string
+      - description: Cursor for pagination
+        in: query
+        name: after
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friends list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get friends list
+      tags:
+      - Friends
+  /friends/{id}:
+    delete:
+      description: Remove a user from friends list
+      parameters:
+      - description: Friend user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend removed
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid friend ID or not friends
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Remove friend
+      tags:
+      - Friends
+  /friends/{id}/block:
+    post:
+      description: Block a user and remove from friends if applicable
+      parameters:
+      - description: User ID to block
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User blocked
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID or already blocked
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Block user
+      tags:
+      - Friends
+  /friends/{id}/status:
+    get:
+      description: Check friendship status between current user and another user
+      parameters:
+      - description: User ID to check
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friendship status
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Check friendship status
+      tags:
+      - Friends
+  /friends/{id}/unblock:
+    post:
+      description: Unblock a previously blocked user
+      parameters:
+      - description: User ID to unblock
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User unblocked
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID or not blocked
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Unblock user
+      tags:
+      - Friends
+  /friends/accept-request:
+    post:
+      description: Accept a friend request from another user
+      parameters:
+      - description: Sender user ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AcceptFriendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend request accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID or request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Request not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Accept friend request
+      tags:
+      - Friends
+  /friends/blocked:
+    get:
+      description: Get list of users blocked by current user
+      parameters:
+      - default: 20
+        description: Number of users to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Blocked users list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get blocked users
+      tags:
+      - Friends
+  /friends/decline-request:
+    post:
+      description: Decline a friend request from another user
+      parameters:
+      - description: Sender user ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.DeclineFriendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend request declined
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID or request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Request not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Decline friend request
+      tags:
+      - Friends
+  /friends/requests:
+    get:
+      description: Get list of received or sent friend requests
+      parameters:
+      - default: '"all"'
+        description: 'Request type: received, sent, or all'
+        enum:
+        - all
+        - sent
+        - received
+        in: query
+        name: type
+        required: true
+        type: string
+      - default: 5
+        description: Number of requests to return
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: before
+        type: string
+      - description: Cursor for pagination
+        in: query
+        name: after
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend requests list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get friend requests
+      tags:
+      - Friends
+  /friends/requests-stats:
+    get:
+      description: Get stats of received or sent friend requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend requests stats
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get friend requests stats
+      tags:
+      - Friends
+  /friends/send-request:
+    post:
+      consumes:
+      - application/json
+      description: Send a friend request to another user
+      parameters:
+      - description: Target user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Optional message
+        in: body
+        name: request
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Friend request sent
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request or user ID
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send friend request
+      tags:
+      - Friends
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: Create a new post with text, images, or videos
+      parameters:
+      - description: Post data
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created post
+          schema:
+            $ref: '#/definitions/postgres.Post'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new post
+      tags:
+      - Posts
+  /posts/{id}:
+    delete:
+      description: Delete a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid post ID
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete post
+      tags:
+      - Posts
+    get:
+      description: Retrieve a specific post by its ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post data
+          schema:
+            $ref: '#/definitions/postgres.Post'
+        "400":
+          description: Invalid post ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get post by ID
+      tags:
+      - Posts
+    put:
+      consumes:
+      - application/json
+      description: Update an existing post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post update data
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated post
+          schema:
+            $ref: '#/definitions/postgres.Post'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update post
+      tags:
+      - Posts
+  /posts/{id}/comments:
+    get:
+      description: Get comments for a specific post with cursor-based pagination
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 20
+        description: Number of comments to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comments data
+          schema:
+            $ref: '#/definitions/responses.CommentResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get post comments
+      tags:
+      - Posts
+    post:
+      consumes:
+      - application/json
+      description: Create a comment on a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment data
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created comment
+          schema:
+            $ref: '#/definitions/postgres.Comment'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create comment
+      tags:
+      - Posts
+  /posts/{id}/like:
+    post:
+      description: Toggle like status on a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: '"like"'
+        description: Type of like
+        in: query
+        name: like_type
+        type: string
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Like/Unlike post
+      tags:
+      - Posts
+  /posts/{id}/share:
+    post:
+      consumes:
+      - application/json
+      description: Share a post to user's timeline
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Share data
+        in: body
+        name: share
+        required: true
+        schema:
+          $ref: '#/definitions/requests.SharePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created share
+          schema:
+            $ref: '#/definitions/postgres.Share'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Share post
+      tags:
+      - Posts
+  /posts/feed:
+    get:
+      description: Get personalized feed with posts from friends
+      parameters:
+      - default: 20
+        description: Number of posts to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Feed data
+          schema:
+            $ref: '#/definitions/responses.PostResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user feed
+      tags:
+      - Posts
+  /posts/public:
+    get:
+      description: Get public posts for explore page
+      parameters:
+      - default: 20
+        description: Number of posts to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Public feed data
+          schema:
+            $ref: '#/definitions/responses.PostResponse'
+      summary: Get public feed
+      tags:
+      - Posts
+  /posts/search:
+    get:
+      description: Search posts by content or tags
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - default: 20
+        description: Number of posts to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search results
+          schema:
+            $ref: '#/definitions/responses.PostResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search posts
+      tags:
+      - Posts
+  /posts/user/{user_id}:
+    get:
+      description: Get posts by a specific user with cursor-based pagination
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: 20
+        description: Number of posts to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts data
+          schema:
+            $ref: '#/definitions/responses.PostResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get user posts
+      tags:
+      - Posts
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Get current user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Profile not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my profile
+      tags:
+      - Users
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create or update profile for authenticated user using multipart
+        form data
+      parameters:
+      - description: First name
+        in: formData
+        name: first_name
+        required: true
+        type: string
+      - description: Last name
+        in: formData
+        name: last_name
+        required: true
+        type: string
+      - description: Display name
+        in: formData
+        name: display_name
+        required: true
+        type: string
+      - description: Bio
+        in: formData
+        name: bio
+        type: string
+      - description: Phone number
+        in: formData
+        name: phone
+        type: string
+      - description: Date of birth (YYYY-MM-DD)
+        in: formData
+        name: date_of_birth
+        type: string
+      - description: Avatar image
+        in: formData
+        name: avatar
+        type: file
+      - description: Wall image
+        in: formData
+        name: wall_image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created or updated profile
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create or update profile
+      tags:
+      - Users
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update current user's profile information
+      parameters:
+      - description: First name
+        in: formData
+        name: first_name
+        type: string
+      - description: Last name
+        in: formData
+        name: last_name
+        type: string
+      - description: Display name
+        in: formData
+        name: display_name
+        type: string
+      - description: Bio
+        in: formData
+        name: bio
+        type: string
+      - description: Phone number
+        in: formData
+        name: phone
+        type: string
+      - description: Date of birth (YYYY-MM-DD)
+        in: formData
+        name: date_of_birth
+        type: string
+      - description: Avatar image
+        in: formData
+        name: avatar
+        type: file
+      - description: Wall image
+        in: formData
+        name: wall_image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated profile
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Users
+  /search:
+    get:
+      description: Search across posts, users, and comments with flexible filtering
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - description: Content type filter (post, user, comment)
+        in: query
+        name: type
+        type: string
+      - description: Filter by author ID
+        in: query
+        name: author_id
+        type: string
+      - description: Privacy filter (public, friends, private)
+        in: query
+        name: privacy
+        type: string
+      - default: relevance
+        description: Sort order (relevance, date, popularity)
+        in: query
+        name: sort_by
+        type: string
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: from
+        type: integer
+      - default: 20
+        description: Number of results (1-100)
+        in: query
+        name: size
+        type: integer
+      - default: false
+        description: Enable result highlighting
+        in: query
+        name: highlight
+        type: boolean
+      - default: false
+        description: Enable fuzzy search
+        in: query
+        name: fuzzy
+        type: boolean
+      - collectionFormat: csv
+        description: Filter by tags
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - collectionFormat: csv
+        description: Enable faceted search
+        in: query
+        items:
+          type: string
+        name: facets
+        type: array
+      - description: Start date filter (RFC3339 format)
+        in: query
+        name: from_date
+        type: string
+      - description: End date filter (RFC3339 format)
+        in: query
+        name: to_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search results
+          schema:
+            $ref: '#/definitions/services.SearchResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Search failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Global search
+      tags:
+      - Search
+  /search/admin/documents/{id}:
+    delete:
+      description: Remove a specific document from the search index (admin only)
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Document deleted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Delete failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete search document
+      tags:
+      - Search
+  /search/admin/reindex:
+    post:
+      description: Rebuild the entire search index (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reindex successful
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Reindex failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reindex all content
+      tags:
+      - Search
+  /search/admin/stats:
+    get:
+      description: Get statistics about the search index (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search statistics
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Stats failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get search statistics
+      tags:
+      - Search
+  /search/advanced:
+    post:
+      consumes:
+      - application/json
+      description: Perform advanced search with complex JSON-based filtering
+      parameters:
+      - description: Advanced search parameters
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/services.SearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search results
+          schema:
+            $ref: '#/definitions/services.SearchResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Search failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Advanced search
+      tags:
+      - Search
+  /search/autocomplete:
+    get:
+      description: Get search suggestions for partial queries
+      parameters:
+      - description: Partial search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Content type filter (post, user, comment)
+        in: query
+        name: type
+        type: string
+      - default: 10
+        description: Number of suggestions (1-50)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search suggestions
+          schema:
+            $ref: '#/definitions/services.AutoCompleteResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Autocomplete failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Auto-complete search
+      tags:
+      - Search
+  /search/comments:
+    get:
+      description: Search for comments with filtering options
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: from
+        type: integer
+      - default: 20
+        description: Number of results (1-100)
+        in: query
+        name: size
+        type: integer
+      - description: Filter by author ID
+        in: query
+        name: author_id
+        type: string
+      - default: false
+        description: Enable result highlighting
+        in: query
+        name: highlight
+        type: boolean
+      - default: relevance
+        description: Sort order (relevance, date)
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment search results
+          schema:
+            $ref: '#/definitions/services.SearchResponse'
+        "500":
+          description: Search failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search comments
+      tags:
+      - Search
+  /search/posts:
+    get:
+      description: Search for posts with specific filters
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: from
+        type: integer
+      - default: 20
+        description: Number of results (1-100)
+        in: query
+        name: size
+        type: integer
+      - description: Filter by author ID
+        in: query
+        name: author_id
+        type: string
+      - description: Privacy filter (public, friends, private)
+        in: query
+        name: privacy
+        type: string
+      - collectionFormat: csv
+        description: Filter by tags
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - default: false
+        description: Enable result highlighting
+        in: query
+        name: highlight
+        type: boolean
+      - default: relevance
+        description: Sort order (relevance, date, popularity)
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post search results
+          schema:
+            $ref: '#/definitions/services.SearchResponse'
+        "500":
+          description: Search failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search posts
+      tags:
+      - Search
+  /search/trending-tags:
+    get:
+      description: Get currently trending hashtags based on post frequency
+      parameters:
+      - default: 10
+        description: Number of tags to return (1-50)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Trending tags
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Trends failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get trending tags
+      tags:
+      - Search
+  /search/users:
+    get:
+      description: Search for users by username, display name, or bio
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: from
+        type: integer
+      - default: 20
+        description: Number of results (1-100)
+        in: query
+        name: size
+        type: integer
+      - default: false
+        description: Enable result highlighting
+        in: query
+        name: highlight
+        type: boolean
+      - default: relevance
+        description: Sort order (relevance, date)
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User search results
+          schema:
+            $ref: '#/definitions/services.SearchResponse'
+        "500":
+          description: Search failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search users
+      tags:
+      - Search
+  /users/{id}/stats:
+    get:
+      description: Get user statistics like post count, friend count, etc.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User statistics
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get user stats
+      tags:
+      - Users
+  /users/avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload avatar image for current user
+      parameters:
+      - description: Avatar image file
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Upload success with avatar URL
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid file
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload avatar
+      tags:
+      - Users
+  /users/online-status:
+    put:
+      consumes:
+      - application/json
+      description: Update current user's online status
+      parameters:
+      - description: Online status
+        in: body
+        name: status
+        required: true
+        schema:
+          additionalProperties:
+            type: boolean
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update online status
+      tags:
+      - Users
+  /users/search:
+    get:
+      description: Search for users by username, display name, or email
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - default: 20
+        description: Number of users to return
+        in: query
+        name: limit
+        type: integer
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search results
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search users
+      tags:
+      - Users
+  /users/settings:
+    get:
+      description: Get current user's privacy and notification settings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User settings
+          schema:
+            $ref: '#/definitions/postgres.UserSettings'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user settings
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update current user's privacy and notification settings
+      parameters:
+      - description: User settings
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/postgres.UserSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated settings
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user settings
+      tags:
+      - Users
+  /ws/chat:
+    get:
+      description: Establish WebSocket connection for real-time chat messaging
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Connect to chat WebSocket
+      tags:
+      - Chat
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
+tags:
+- description: User authentication and authorization
+  name: Authentication
+- description: User management and profiles
+  name: Users
+- description: Post creation, management and social interactions
+  name: Posts
+- description: WebRTC video calling functionality
+  name: Calls
+- description: File upload and management
+  name: Uploads
+- description: Advanced search with Bleve full-text search
+  name: Search
+- description: Real-time chat and messaging functionality
+  name: Chat

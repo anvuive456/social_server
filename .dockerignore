@@ -1,0 +1,92 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Environment files (keep .env.example)
+.env
+.env.local
+.env.development
+.env.production
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build artifacts and binaries
+bin/
+main
+server
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*_test.go
+test_*
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.out
+
+# Runtime data
+uploads/
+search_index/
+*.pid
+
+# Memory bank workflow files
+memory_bank/
+
+# Node modules (if any)
+node_modules/
+
+# Coverage reports
+coverage.out
+coverage.html
+
+# Vendor directory (if using)
+vendor/
+
+# Go specific
+*.cover
+*.prof
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+
+# Archives
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/

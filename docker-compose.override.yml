@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # Development overrides for PostgreSQL
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: social_media_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d/
+
+  # Development overrides for Redis
+  redis:
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+
+  # Development overrides for Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development with more tools
+    volumes:
+      # Mount source code for hot reload (if using air or similar)
+      - ./:/app
+      - /app/bin  # Exclude bin directory from volume mount
+      - app_dev_uploads:/app/uploads
+      - app_dev_search_index:/app/search_index
+    ports:
+      - "8080:8080"
+      - "8081:8081"  # WebRTC signaling
+      - "2345:2345"  # Delve debugger port
+    environment:
+      # Development environment
+      ENVIRONMENT: development
+      
+      # Database (development)
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DATABASE: social_media_dev
+      
+      # Development-friendly JWT
+      JWT_SECRET: dev-secret-key-not-for-production
+      
+      # Redis (development)
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ""
+      
+      # Logging (more verbose for development)
+      LOG_LEVEL: debug
+      LOG_FORMAT: text
+      LOG_OUTPUT: stdout
+      
+      # CORS (allow all origins in development)
+      ALLOWED_ORIGINS: "*"
+      
+      # Email (disable or use fake service for development)
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025  # Mailhog or similar
+      SMTP_USERNAME: ""
+      SMTP_PASSWORD: ""
+      
+      # Disable external services in development
+      CLOUDINARY_CLOUD_NAME: ""
+      CLOUDINARY_API_KEY: ""
+      CLOUDINARY_API_SECRET: ""
+      
+      # Rate limiting (more lenient for development)
+      RATE_LIMIT_REQUESTS_PER_MINUTE: 1000
+      RATE_LIMIT_BURST_SIZE: 100
+      AUTH_RATE_LIMIT_REQUESTS_PER_MINUTE: 100
+      AUTH_RATE_LIMIT_BURST_SIZE: 50
+    
+    # Override healthcheck for development (faster)
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 2
+      start_period: 20s
+    
+    # Development command (could be overridden to use air for hot reload)
+    # command: air -c .air.toml
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Optional: Mailhog for email testing in development
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: social_server_mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    networks:
+      - social_network
+
+  # Optional: pgAdmin for database management in development
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: social_server_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    networks:
+      - social_network
+    depends_on:
+      - postgres
+
+# Development volumes
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  app_dev_uploads:
+    driver: local
+  app_dev_search_index:
+    driver: local
+  pgadmin_dev_data:
+    driver: local
