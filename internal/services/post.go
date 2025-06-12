@@ -93,6 +93,7 @@ func (s *PostService) CreatePost(userID uint, req *requests.CreatePostRequest) (
 			Duration:  mediaReq.Duration,
 			Thumbnail: mediaReq.Thumbnail,
 			AltText:   mediaReq.AltText,
+			BlurHash:  mediaReq.BlurHash,
 			Order:     i,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -183,34 +184,22 @@ func (s *PostService) DeletePost(postID, userID uint) error {
 }
 
 func (s *PostService) GetUserPosts(
-
-	targetUserID uint,
-	currentUserID *uint,
-	limit int,
-	cursor paginator.Cursor,
+	currentUserID uint,
+	req *requests.GetPostsRequest,
 ) (*responses.PostResponse, error) {
-	// Check if current user can view target user's posts
-	var privacy postgres.PostPrivacy
-	if currentUserID != nil && *currentUserID != targetUserID {
-		// Check if they are friends for private posts
-		isFriend, err := s.userRepo.IsFriend(*currentUserID, targetUserID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to check friendship: %w", err)
-		}
-
-		if !isFriend {
-			// Only return public posts
-			privacy = postgres.PostPrivacyPublic
-		}
+	cursor := paginator.Cursor{
+		Before: &req.Before,
+		After:  &req.After,
 	}
 
-	posts, err := s.postRepo.GetUserPosts(targetUserID, privacy)
+	posts, nextCursor, err := s.postRepo.GetUserPosts(currentUserID, req.UserID, postgres.PostPrivacyFriends, cursor, req.Limit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user posts: %w", err)
 	}
 
 	return &responses.PostResponse{
-		Posts: posts,
+		Posts:      posts,
+		NextCursor: &nextCursor,
 	}, nil
 }
 

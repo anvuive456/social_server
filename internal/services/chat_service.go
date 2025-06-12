@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"social_server/internal/models/postgres"
+	"social_server/internal/models/requests"
 	"social_server/internal/models/responses"
 	"social_server/internal/repositories"
 	"time"
@@ -21,21 +22,20 @@ func NewChatService(repos *repositories.Repositories) *ChatService {
 }
 
 // Room operations
-func (s *ChatService) CreateRoom(room *postgres.ChatRoom) error {
-	// Validate room data
-	if room.Name == "" && room.Type == postgres.ChatRoomTypeGroup {
-		return fmt.Errorf("group chat room must have a name")
+func (s *ChatService) CreateRoom(creatorID uint, req *requests.CreateChatRoomRequest) (*postgres.ChatRoom, error) {
+
+	room, err := s.repos.ChatRoom.Create(req.Name, creatorID, req.Type, req.Participants)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create chat room: %w", err)
 	}
 
-	// Set creation time
-	room.CreatedAt = time.Now()
-	room.UpdatedAt = time.Now()
-	room.LastActivity = time.Now()
+	return room, nil
+}
 
-	// Create room
-	err := s.repos.ChatRoom.Create(room)
+func (s *ChatService) DeleteRoom(userID uint, roomID uint) error {
+	err := s.repos.ChatRoom.Delete(userID, roomID)
 	if err != nil {
-		return fmt.Errorf("failed to create chat room: %w", err)
+		return fmt.Errorf("failed to delete chat room: %w", err)
 	}
 
 	return nil
@@ -50,12 +50,22 @@ func (s *ChatService) GetRoomMembers(roomID uint) ([]postgres.User, error) {
 	return members, nil
 }
 
-func (s *ChatService) GetUserRooms(userID uint) ([]responses.ChatRoomSummary, error) {
-	rooms, err := s.repos.ChatRoom.GetUserRooms(userID)
+func (s *ChatService) GetUserRooms(userID uint, req requests.GetChatRoomsRequest) (*responses.ChatRoomsResponse, error) {
+	if req.Limit < 1 || req.Limit > 100 {
+		req.Limit = 5
+	}
+	cursor := paginator.Cursor{
+		Before: &req.Before,
+		After:  &req.After,
+	}
+	rooms, next, err := s.repos.ChatRoom.GetUserRooms(userID, req.Archive, cursor, req.Limit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user rooms: %w", err)
 	}
-	return rooms, nil
+	return &responses.ChatRoomsResponse{
+		Conversations: rooms,
+		NextCursor:    &next,
+	}, nil
 }
 
 func (s *ChatService) GetPrivateRoom(userID1, userID2 uint) (*postgres.ChatRoom, error) {

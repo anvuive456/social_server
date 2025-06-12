@@ -30,6 +30,10 @@ type ChatRoomSummary struct {
 	IsMuted          bool                  `json:"is_muted"`
 	CreatedAt        time.Time             `json:"created_at"`
 }
+type ChatRoomsResponse struct {
+	Conversations []ChatRoomSummary `json:"rooms"`
+	NextCursor    *paginator.Cursor `json:"next_cursor,omitempty"`
+}
 
 type MessageSearchResult struct {
 	Message    *postgres.Message  `json:"message"`

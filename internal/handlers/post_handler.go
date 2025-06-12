@@ -1,17 +1,22 @@
 package handlers
 
 import (
+	"fmt"
+	"image"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"social_server/internal/middleware"
 	"social_server/internal/models/postgres"
 	"social_server/internal/models/requests"
 	"social_server/internal/models/responses"
-
 	"social_server/internal/services"
+	"social_server/internal/utils"
 	"strconv"
+	"strings"
 
+	"github.com/buckket/go-blurhash"
 	"github.com/gin-gonic/gin"
-	"github.com/pilagod/gorm-cursor-paginator/v2/paginator"
 )
 
 // Dummy for swaggo
@@ -30,12 +35,17 @@ func NewPostHandler(postService *services.PostService) *PostHandler {
 
 // CreatePost creates a new post
 // @Summary Create a new post
-// @Description Create a new post with text, images, or videos
+// @Description Create a new post with text, images, or videos using form data
 // @Tags Posts
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Security BearerAuth
-// @Param post body requests.CreatePostRequest true "Post data"
+// @Param type formData string true "Post type (text, image, video, audio, link)"
+// @Param content formData string false "Post content"
+// @Param privacy formData string false "Post privacy (public, friends, private)"
+// @Param location formData string false "Post location"
+// @Param tags formData string false "Post tags (comma separated)"
+// @Param files formData file false "Media files (images, videos, documents)"
 // @Success 201 {object} postgres.Post "Created post"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -51,12 +61,34 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	}
 
 	var req requests.CreatePostRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "invalid_request",
 			"message": err.Error(),
 		})
 		return
+	}
+
+	// Handle file uploads
+	form, err := c.MultipartForm()
+	if err == nil && form.File["files"] != nil {
+		mediaRequests, uploadErr := h.handleFileUploads(form.File["files"])
+		if uploadErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   "upload_failed",
+				"message": uploadErr.Error(),
+			})
+			return
+		}
+		req.Media = mediaRequests
+	}
+
+	// Handle comma-separated tags
+	if tagsStr := c.PostForm("tags"); tagsStr != "" {
+		req.Tags = strings.Split(tagsStr, ",")
+		for i := range req.Tags {
+			req.Tags[i] = strings.TrimSpace(req.Tags[i])
+		}
 	}
 
 	post, err := h.postService.CreatePost(userID, &req)
@@ -74,20 +106,123 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	})
 }
 
+// handleFileUploads processes uploaded files using utils and generates blurhash for images/videos
+func (h *PostHandler) handleFileUploads(files []*multipart.FileHeader) ([]requests.PostMediaRequest, error) {
+	var mediaRequests []requests.PostMediaRequest
+
+	for i, file := range files {
+		contentType := file.Header.Get("Content-Type")
+		var config *utils.FileUploadConfig
+		var mediaType string
+
+		// Configure upload settings based on file type
+		switch {
+		case strings.HasPrefix(contentType, "image/"):
+			config = &utils.FileUploadConfig{
+				UploadDir:    "./uploads/images",
+				MaxFileSize:  10 * 1024 * 1024, // 10MB
+				AllowedTypes: []string{"image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"},
+				BaseURL:      "/uploads/images",
+			}
+			mediaType = "image"
+		case strings.HasPrefix(contentType, "video/"):
+			config = &utils.FileUploadConfig{
+				UploadDir:    "./uploads/videos",
+				MaxFileSize:  100 * 1024 * 1024, // 100MB
+				AllowedTypes: []string{"video/mp4", "video/avi", "video/mov", "video/wmv", "video/webm"},
+				BaseURL:      "/uploads/videos",
+			}
+			mediaType = "video"
+		case strings.HasPrefix(contentType, "audio/"):
+			config = &utils.FileUploadConfig{
+				UploadDir:    "./uploads/videos", // Store audio with videos
+				MaxFileSize:  50 * 1024 * 1024,   // 50MB
+				AllowedTypes: []string{"audio/mp3", "audio/wav", "audio/aac", "audio/ogg"},
+				BaseURL:      "/uploads/videos",
+			}
+			mediaType = "audio"
+		default:
+			config = &utils.FileUploadConfig{
+				UploadDir:    "./uploads/documents",
+				MaxFileSize:  20 * 1024 * 1024, // 20MB
+				AllowedTypes: []string{},       // Allow all types for documents
+				BaseURL:      "/uploads/documents",
+			}
+			mediaType = "document"
+		}
+
+		// Upload file using utils
+		uploadResult, err := utils.UploadFile(file, config)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload file %s: %v", file.Filename, err)
+		}
+
+		// Create basic media request
+		mediaRequest := requests.PostMediaRequest{
+			Type:     mediaType,
+			URL:      uploadResult.URL,
+			Filename: uploadResult.OriginalName,
+			Size:     uploadResult.FileSize,
+			MimeType: uploadResult.ContentType,
+			Order:    i,
+		}
+
+		// Generate blurhash for images and videos
+		if mediaType == "image" {
+			if blurHash, err := h.generateBlurhashFromFile(uploadResult.FilePath); err == nil {
+				mediaRequest.BlurHash = blurHash
+			}
+		}
+
+		mediaRequests = append(mediaRequests, mediaRequest)
+	}
+
+	return mediaRequests, nil
+}
+
+// generateBlurhashFromFile generates blurhash from image file
+func (h *PostHandler) generateBlurhashFromFile(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return "", err
+	}
+
+	return blurhash.Encode(4, 3, img)
+}
+
 // GetPost retrieves a specific post by ID
 // @Summary Get post by ID
 // @Description Retrieve a specific post by its ID
 // @Tags Posts
 // @Produce json
+// @Security BearerAuth
 // @Param id path int true "Post ID"
 // @Success 200 {object} postgres.Post "Post data"
 // @Failure 400 {object} map[string]interface{} "Invalid post ID"
 // @Failure 404 {object} map[string]interface{} "Post not found"
 // @Router /posts/{id} [get]
 func (h *PostHandler) GetPost(c *gin.Context) {
-	postIDParam := c.Param("id")
-	postID, err := strconv.ParseUint(postIDParam, 10, 32)
-	if err != nil {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"message": "user is not authenticated",
+		})
+		return
+	}
+
+	type PostUri struct {
+		ID uint `uri:"id"`
+	}
+
+	var uri PostUri
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "invalid_post_id",
 			"message": "Invalid post ID format",
@@ -96,9 +231,8 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 	}
 
 	// Get current user ID if authenticated
-	userID, _ := middleware.GetUserID(c)
 
-	post, err := h.postService.GetPost(uint(postID), &userID)
+	post, err := h.postService.GetPost(uri.ID, &userID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "post_not_found",
@@ -241,18 +375,28 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 	})
 }
 
-// GetUserPosts retrieves posts by a specific user
+// GetUserPosts retrieves posts
 // @Summary Get user posts
-// @Description Get posts by a specific user with cursor-based pagination
+// @Description Get posts with cursor-based pagination. If user_id is provided, returns posts from that specific user. If user_id is null, returns posts from friends.
 // @Tags Posts
+// @Accept json
 // @Produce json
-// @Param user_id path int true "User ID"
-// @Param limit query int false "Number of posts to return" default(20)
-// @Param cursor query string false "Cursor for pagination"
+// @Security BearerAuth
+// @Param request query requests.GetPostsRequest true "Get posts request parameters"
 // @Success 200 {object} responses.PostResponse "Posts data"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
-// @Router /posts/user/{user_id} [get]
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Router /posts [get]
 func (h *PostHandler) GetPosts(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"message": "User not authenticated",
+		})
+		return
+	}
+
 	var req requests.GetPostsRequest
 
 	if err := c.BindQuery(&req); err != nil {
@@ -263,20 +407,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		return
 	}
 
-	cursor := paginator.Cursor{
-		Before: &req.Before,
-		After:  &req.After,
-	}
-
-	// Get current user ID if authenticated
-	currentUserID, _ := middleware.GetUserID(c)
-
-	// Parse limit
-	if req.Limit <= 0 || req.Limit > 100 {
-		req.Limit = 20
-	}
-
-	response, err := h.postService.GetUserPosts(uint(req.UserID), &currentUserID, req.Limit, cursor)
+	response, err := h.postService.GetUserPosts(userID, &req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "get_posts_failed",

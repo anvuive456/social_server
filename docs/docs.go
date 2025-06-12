@@ -835,6 +835,171 @@ const docTemplate = `{
                 }
             }
         },
+        "/chat/rooms": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get list of chat rooms for the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Get user chat rooms",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "after",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "name": "archive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "before",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User rooms",
+                        "schema": {
+                            "$ref": "#/definitions/social_server_internal_models_responses.ChatRoomsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Fetch failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new chat room (group or private)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Create chat room",
+                "parameters": [
+                    {
+                        "description": "Room creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/social_server_internal_models_requests.CreateChatRoomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created room",
+                        "schema": {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.ChatRoom"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Creation failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/rooms/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a specific chat room",
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Delete chat room",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Delete failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/friends": {
             "get": {
                 "security": [
@@ -1421,15 +1586,83 @@ const docTemplate = `{
             }
         },
         "/posts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get posts with cursor-based pagination. If user_id is provided, returns posts from that specific user. If user_id is null, returns posts from friends.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get user posts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "after",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "before",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "user_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Posts data",
+                        "schema": {
+                            "$ref": "#/definitions/social_server_internal_models_responses.PostResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new post with text, images, or videos",
+                "description": "Create a new post with text, images, or videos using form data",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1440,13 +1673,41 @@ const docTemplate = `{
                 "summary": "Create a new post",
                 "parameters": [
                     {
-                        "description": "Post data",
-                        "name": "post",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/social_server_internal_models_requests.CreatePostRequest"
-                        }
+                        "type": "string",
+                        "description": "Post type (text, image, video, audio, link)",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Post content",
+                        "name": "content",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Post privacy (public, friends, private)",
+                        "name": "privacy",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Post location",
+                        "name": "location",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Post tags (comma separated)",
+                        "name": "tags",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Media files (images, videos, documents)",
+                        "name": "files",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1604,57 +1865,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/user/{user_id}": {
-            "get": {
-                "description": "Get posts by a specific user with cursor-based pagination",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Posts"
-                ],
-                "summary": "Get user posts",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Number of posts to return",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Cursor for pagination",
-                        "name": "cursor",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Posts data",
-                        "schema": {
-                            "$ref": "#/definitions/social_server_internal_models_responses.PostResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/posts/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a specific post by its ID",
                 "produces": [
                     "application/json"
@@ -3411,6 +3628,108 @@ const docTemplate = `{
                 }
             }
         },
+        "social_server_internal_models_postgres.ChatRoom": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "creator": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                        }
+                    ]
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_archived": {
+                    "type": "boolean"
+                },
+                "last_activity": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Message"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/social_server_internal_models_postgres.Participant"
+                    }
+                },
+                "settings": {
+                    "description": "Embedded settings",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.ChatRoomSettings"
+                        }
+                    ]
+                },
+                "type": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.ChatRoomType"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.ChatRoomSettings": {
+            "type": "object",
+            "properties": {
+                "allow_file_sharing": {
+                    "type": "boolean"
+                },
+                "allow_image_sharing": {
+                    "type": "boolean"
+                },
+                "allow_video_sharing": {
+                    "type": "boolean"
+                },
+                "message_encryption": {
+                    "type": "boolean"
+                },
+                "only_admins_can_invite": {
+                    "type": "boolean"
+                },
+                "only_admins_can_post": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.ChatRoomType": {
+            "type": "string",
+            "enum": [
+                "private",
+                "group",
+                "private",
+                "group",
+                "private",
+                "group"
+            ],
+            "x-enum-varnames": [
+                "ChatRoomTypePrivate",
+                "ChatRoomTypeGroup"
+            ]
+        },
         "social_server_internal_models_postgres.Comment": {
             "type": "object",
             "properties": {
@@ -3610,6 +3929,311 @@ const docTemplate = `{
                 }
             }
         },
+        "social_server_internal_models_postgres.Message": {
+            "type": "object",
+            "properties": {
+                "chat_room": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.ChatRoom"
+                        }
+                    ]
+                },
+                "chat_room_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "delivery_status": {
+                    "description": "JSON as string",
+                    "type": "string"
+                },
+                "edited_at": {
+                    "type": "string"
+                },
+                "encrypted_content": {
+                    "type": "string"
+                },
+                "forwarded_from": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.Message"
+                },
+                "forwarded_from_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.MessageLocation"
+                },
+                "media": {
+                    "description": "Embedded media and location",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.MessageMedia"
+                        }
+                    ]
+                },
+                "mentions": {
+                    "description": "JSON array as string",
+                    "type": "string"
+                },
+                "reactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/social_server_internal_models_postgres.MessageReaction"
+                    }
+                },
+                "read_by": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/social_server_internal_models_postgres.MessageRead"
+                    }
+                },
+                "reply_to": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.Message"
+                },
+                "reply_to_id": {
+                    "type": "integer"
+                },
+                "sender": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                },
+                "sender_id": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "description": "JSON array as string",
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.MessageType"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.MessageLocation": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "place_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.MessageMedia": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "integer"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "mime_type": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.MessageReaction": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Message"
+                        }
+                    ]
+                },
+                "message_id": {
+                    "type": "integer"
+                },
+                "reacted_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.MessageRead": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.Message"
+                        }
+                    ]
+                },
+                "message_id": {
+                    "type": "integer"
+                },
+                "read_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.MessageType": {
+            "type": "string",
+            "enum": [
+                "text",
+                "image",
+                "video",
+                "audio",
+                "file",
+                "system",
+                "location",
+                "text",
+                "image",
+                "video",
+                "audio",
+                "file",
+                "system",
+                "location"
+            ],
+            "x-enum-varnames": [
+                "MessageTypeText",
+                "MessageTypeImage",
+                "MessageTypeVideo",
+                "MessageTypeAudio",
+                "MessageTypeFile",
+                "MessageTypeSystem",
+                "MessageTypeLocation"
+            ]
+        },
+        "social_server_internal_models_postgres.Participant": {
+            "type": "object",
+            "properties": {
+                "chat_room": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/social_server_internal_models_postgres.ChatRoom"
+                        }
+                    ]
+                },
+                "chat_room_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "Timestamps",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_blocked": {
+                    "type": "boolean"
+                },
+                "is_muted": {
+                    "type": "boolean"
+                },
+                "joined_at": {
+                    "type": "string"
+                },
+                "last_read_at": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "description": "JSON array as string",
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.ParticipantRole"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "social_server_internal_models_postgres.ParticipantRole": {
+            "type": "string",
+            "enum": [
+                "member",
+                "admin",
+                "owner",
+                "member",
+                "admin",
+                "owner"
+            ],
+            "x-enum-varnames": [
+                "ParticipantRoleMember",
+                "ParticipantRoleAdmin",
+                "ParticipantRoleOwner"
+            ]
+        },
         "social_server_internal_models_postgres.Post": {
             "type": "object",
             "properties": {
@@ -3777,9 +4401,6 @@ const docTemplate = `{
                 "private",
                 "public",
                 "friends",
-                "private",
-                "public",
-                "friends",
                 "private"
             ],
             "x-enum-varnames": [
@@ -3791,11 +4412,6 @@ const docTemplate = `{
         "social_server_internal_models_postgres.PostType": {
             "type": "string",
             "enum": [
-                "text",
-                "image",
-                "video",
-                "link",
-                "audio",
                 "text",
                 "image",
                 "video",
@@ -4123,6 +4739,45 @@ const docTemplate = `{
                 }
             }
         },
+        "social_server_internal_models_requests.ChatRoomType": {
+            "type": "string",
+            "enum": [
+                "private",
+                "group",
+                "private",
+                "group"
+            ],
+            "x-enum-varnames": [
+                "ChatRoomTypePrivate",
+                "ChatRoomTypeGroup"
+            ]
+        },
+        "social_server_internal_models_requests.CreateChatRoomRequest": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/social_server_internal_models_requests.ChatRoomType"
+                }
+            }
+        },
         "social_server_internal_models_requests.CreateCommentRequest": {
             "type": "object",
             "required": [
@@ -4140,38 +4795,6 @@ const docTemplate = `{
                 },
                 "parent_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "social_server_internal_models_requests.CreatePostRequest": {
-            "type": "object",
-            "required": [
-                "type"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "media": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/social_server_internal_models_requests.PostMediaRequest"
-                    }
-                },
-                "privacy": {
-                    "$ref": "#/definitions/social_server_internal_models_requests.PostPrivacy"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type": {
-                    "$ref": "#/definitions/social_server_internal_models_requests.PostType"
                 }
             }
         },
@@ -4230,51 +4853,12 @@ const docTemplate = `{
                 }
             }
         },
-        "social_server_internal_models_requests.PostMediaRequest": {
-            "type": "object",
-            "required": [
-                "type",
-                "url"
-            ],
-            "properties": {
-                "alt_text": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "integer"
-                },
-                "filename": {
-                    "type": "string"
-                },
-                "height": {
-                    "type": "integer"
-                },
-                "mime_type": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "thumbnail": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "width": {
-                    "type": "integer"
-                }
-            }
-        },
         "social_server_internal_models_requests.PostPrivacy": {
             "type": "string",
             "enum": [
+                "public",
+                "friends",
+                "private",
                 "public",
                 "friends",
                 "private",
@@ -4286,28 +4870,6 @@ const docTemplate = `{
                 "PostPrivacyPublic",
                 "PostPrivacyFriends",
                 "PostPrivacyPrivate"
-            ]
-        },
-        "social_server_internal_models_requests.PostType": {
-            "type": "string",
-            "enum": [
-                "text",
-                "image",
-                "video",
-                "link",
-                "audio",
-                "text",
-                "image",
-                "video",
-                "link",
-                "audio"
-            ],
-            "x-enum-varnames": [
-                "PostTypeText",
-                "PostTypeImage",
-                "PostTypeVideo",
-                "PostTypeLink",
-                "PostTypeAudio"
             ]
         },
         "social_server_internal_models_requests.RefreshTokenRequest": {
@@ -4499,6 +5061,55 @@ const docTemplate = `{
                 "stats": {
                     "type": "object",
                     "additionalProperties": true
+                }
+            }
+        },
+        "social_server_internal_models_responses.ChatRoomSummary": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_muted": {
+                    "type": "boolean"
+                },
+                "last_activity": {
+                    "type": "string"
+                },
+                "last_message": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.Message"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "participant_count": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/social_server_internal_models_postgres.ChatRoomType"
+                },
+                "unread_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "social_server_internal_models_responses.ChatRoomsResponse": {
+            "type": "object",
+            "properties": {
+                "next_cursor": {
+                    "$ref": "#/definitions/paginator.Cursor"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/social_server_internal_models_responses.ChatRoomSummary"
+                    }
                 }
             }
         },

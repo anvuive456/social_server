@@ -21,11 +21,22 @@ const (
 )
 
 type CreateChatRoomRequest struct {
-	Name         string       `json:"name" binding:"required,max=100"`
-	Description  string       `json:"description,omitempty"`
-	Type         ChatRoomType `json:"type" binding:"required"`
-	Avatar       string       `json:"avatar,omitempty"`
-	Participants []uint       `json:"participants,omitempty"`
+	Name         string       `form:"name,omitempty"`
+	Description  string       `form:"description,omitempty"`
+	Type         ChatRoomType `form:"type" binding:"required"`
+	Avatar       string       `form:"avatar,omitempty"`
+	Participants []uint       `form:"participants,omitempty"`
+}
+
+type GetChatRoomsRequest struct {
+	Limit   int    `form:"limit,omitempty"`
+	Archive bool   `form:"archive,omitempty"`
+	Before  string `form:"before,omitempty"`
+	After   string `form:"after,omitempty"`
+}
+
+type DeleteChatRoomRequest struct {
+	ID uint `uri:"id" binding:"required"`
 }
 
 type UpdateChatRoomRequest struct {
@@ -35,11 +46,11 @@ type UpdateChatRoomRequest struct {
 }
 
 type SendMessageRequest struct {
-	Type      MessageType               `json:"type" binding:"required"`
-	Content   string                    `json:"content"`
-	ReplyToID *uint                     `json:"reply_to_id,omitempty"`
-	Mentions  []uint                    `json:"mentions,omitempty"`
-	Media     *SendMessageMediaRequest  `json:"media,omitempty"`
+	Type      MessageType                 `json:"type" binding:"required"`
+	Content   string                      `json:"content"`
+	ReplyToID *uint                       `json:"reply_to_id,omitempty"`
+	Mentions  []uint                      `json:"mentions,omitempty"`
+	Media     *SendMessageMediaRequest    `json:"media,omitempty"`
 	Location  *SendMessageLocationRequest `json:"location,omitempty"`
 }
 
@@ -76,9 +87,9 @@ type JoinChatRoomRequest struct {
 }
 
 type UpdateParticipantRequest struct {
-	Role        string `json:"role,omitempty"`
+	Role        string   `json:"role,omitempty"`
 	Permissions []string `json:"permissions,omitempty"`
-	Nickname    string `json:"nickname,omitempty"`
+	Nickname    string   `json:"nickname,omitempty"`
 }
 
 type MessageReactionRequest struct {

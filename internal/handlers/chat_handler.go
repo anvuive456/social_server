@@ -1,132 +1,139 @@
 package handlers
 
-// import (
-// 	"net/http"
-// 	"social_server/internal/services"
-// 	"strconv"
-// 	"time"
+import (
+	"net/http"
+	"social_server/internal/middleware"
+	"social_server/internal/models/constants"
+	"social_server/internal/models/postgres"
+	"social_server/internal/models/requests"
+	"social_server/internal/models/responses"
+	"social_server/internal/services"
 
-// 	"social_server/internal/models/constants"
-// 	"social_server/internal/models/postgres"
+	"github.com/gin-gonic/gin"
+)
 
-// 	"github.com/gin-gonic/gin"
-// 	"go.mongodb.org/mongo-driver/bson/primitive"
-// )
+var _ = postgres.ChatRoom{}
+var _ = requests.CreateChatRoomRequest{}
+var _ = responses.ChatRoomsResponse{}
 
-// type ChatHandler struct {
-// 	chatService *services.ChatService
-// 	userService *services.UserService
-// }
+type ChatHandler struct {
+	chatService *services.ChatService
+	userService *services.UserService
+}
 
-// func NewChatHandler(chatService *services.ChatService, userService *services.UserService) *ChatHandler {
-// 	return &ChatHandler{
-// 		chatService: chatService,
-// 		userService: userService,
-// 	}
-// }
+func NewChatHandler(chatService *services.ChatService, userService *services.UserService) *ChatHandler {
+	return &ChatHandler{
+		chatService: chatService,
+		userService: userService,
+	}
+}
 
-// // CreateRoom creates a new chat room
-// // @Summary Create chat room
-// // @Description Create a new chat room (group or private)
-// // @Tags Chat
-// // @Accept json
-// // @Produce json
-// // @Security BearerAuth
-// // @Param request body CreateRoomRequest true "Room creation request"
-// // @Success 201 {object} models.ChatRoom "Created room"
-// // @Failure 400 {object} map[string]interface{} "Invalid request"
-// // @Failure 401 {object} map[string]interface{} "Unauthorized"
-// // @Failure 500 {object} map[string]interface{} "Creation failed"
-// // @Router /chat/rooms [post]
-// func (h *ChatHandler) CreateRoom(c *gin.Context) {
-// 	userID := c.MustGet("user_id").(uint)
+// CreateRoom creates a new chat room
+// @Summary Create chat room
+// @Description Create a new chat room (group or private)
+// @Tags Chat
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body requests.CreateChatRoomRequest true "Room creation request"
+// @Success 201 {object} postgres.ChatRoom "Created room"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 500 {object} map[string]interface{} "Creation failed"
+// @Router /chat/rooms [post]
+func (h *ChatHandler) CreateRoom(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 
-// 	var req CreateRoomRequest
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
+	var req requests.CreateChatRoomRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_request",
+			"message": err.Error()})
+		return
+	}
 
-// 	// Validate request
-// 	if req.Type == constants.ChatRoomTypeGroup && req.Name == "" {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Group chat room must have a name"})
-// 		return
-// 	}
+	if req.Type == constants.ChatRoomTypePrivate && len(req.Participants) != 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "participant_must_be_one_user",
+			"message": "Private room must have exactly one participant",
+		})
+		return
+	}
 
-// 	if req.Type == constants.ChatRoomTypePrivate && len(req.ParticipantIDs) != 1 {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Private chat room must specify exactly one other participant"})
-// 		return
-// 	}
+	room, err := h.chatService.CreateRoom(userID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "create_room_failed", "message": err.Error()})
+		return
+	}
 
-// 	// Create room
-// 	room := &postgres.ChatRoom{
-// 		Name:        req.Name,
-// 		Description: req.Description,
-// 		Type:        req.Type,
-// 		Avatar:      req.Avatar,
-// 		CreatedBy:   userID,
-// 		Settings:    req.Settings,
-// 	}
+	c.JSON(http.StatusCreated, room)
+}
 
-// 	if req.Type == constants.ChatRoomTypePrivate {
+// GetRooms gets user's chat rooms
+// @Summary Get user chat rooms
+// @Description Get list of chat rooms for the authenticated user
+// @Tags Chat
+// @Produce json
+// @Security BearerAuth
+// @Param query query requests.GetChatRoomsRequest true "Query parameters"
+// @Success 200 {object} responses.ChatRoomsResponse "User rooms"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 500 {object} map[string]interface{} "Fetch failed"
+// @Router /chat/rooms [get]
+func (h *ChatHandler) GetRooms(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	var req requests.GetChatRoomsRequest
+	if err := c.BindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid query parameters"})
+		return
+	}
 
-// 		room.ParticipantIDs = []uint{userID, req.ParticipantIDs[0]}
-// 		// Try to get existing private room first
-// 		existingRoom, err := h.chatService.GetOrCreatePrivateRoom(c.Request.Context(), userID, req.ParticipantIDs[0])
-// 		if err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room"})
-// 			return
-// 		}
-// 		c.JSON(http.StatusCreated, existingRoom)
-// 		return
-// 	} else {
-// 		room.ParticipantIDs = append([]uint{userID}, req.ParticipantIDs...)
-// 	}
+	response, err := h.chatService.GetUserRooms(userID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-// 	err := h.chatService.CreateRoom(c.Request.Context(), room)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
+	c.JSON(http.StatusOK, response)
+}
 
-// 	c.JSON(http.StatusCreated, room)
-// }
+// DeleteRoom deletes a chat room
+// @Summary Delete chat room
+// @Description Delete a specific chat room
+// @Security BearerAuth
+// @Tags Chat
+// @Param id path string true "Room ID"
+// @Success 200 {object} map[string]interface{} "Room deleted successfully"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 500 {object} map[string]interface{} "Delete failed"
+// @Router /chat/rooms/{id} [delete]
+func (h *ChatHandler) DeleteRoom(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	var req requests.DeleteChatRoomRequest
+	if err := c.BindUri(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid query parameters"})
+		return
+	}
 
-// // GetRooms gets user's chat rooms
-// // @Summary Get user chat rooms
-// // @Description Get list of chat rooms for the authenticated user
-// // @Tags Chat
-// // @Produce json
-// // @Security BearerAuth
-// // @Param limit query int false "Number of rooms to return (1-100)" default(20)
-// // @Param cursor query string false "Pagination cursor"
-// // @Param last_activity query string false "ISO timestamp for cursor"
-// // @Success 200 {object} models.ChatRoomResponse "User rooms"
-// // @Failure 401 {object} map[string]interface{} "Unauthorized"
-// // @Failure 500 {object} map[string]interface{} "Fetch failed"
-// // @Router /chat/rooms [get]
-// func (h *ChatHandler) GetRooms(c *gin.Context) {
-// 	userID := c.MustGet("user_id")
+	err := h.chatService.DeleteRoom(userID, req.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "delete_room_failed", "message": err.Error()})
+		return
+	}
 
-// 	limitStr := c.DefaultQuery("limit", "20")
-// 	limit, err := strconv.Atoi(limitStr)
-// 	if err != nil || limit < 1 || limit > 100 {
-// 		limit = 20
-// 	}
-
-// 	var cursor *string
-// 	if cursorParam := c.Query("cursor"); cursorParam != "" {
-// 		cursor = &cursorParam
-// 	}
-
-// 	response, err := h.chatService.GetUserRooms(c.Request.Context(), userID, cursor, limit)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, response)
-// }
+	c.JSON(http.StatusOK, gin.H{"message": "Room deleted successfully"})
+}
 
 // // GetRoom gets a specific chat room
 // // @Summary Get chat room

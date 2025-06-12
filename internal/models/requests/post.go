@@ -20,21 +20,20 @@ const (
 )
 
 type GetPostsRequest struct {
-	UserID    uint64 `json:"user_id,omitempty"`
-	Limit     int    `json:"limit" binding:"required"`
-	Sort      string `json:"sort,omitempty"`
-	SortOrder string `json:"sort_order,omitempty"`
-	After     string `json:"after,omitempty"`
-	Before    string `json:"before,omitempty"`
+	UserID *uint  `form:"user_id,omitempty"`
+	Search string `form:"search,omitempty"`
+	Limit  int    `form:"limit" binding:"required"`
+	After  string `form:"after,omitempty"`
+	Before string `form:"before,omitempty"`
 }
 
 type CreatePostRequest struct {
-	Type     PostType           `json:"type" binding:"required"`
-	Content  string             `json:"content"`
-	Privacy  PostPrivacy        `json:"privacy"`
-	Location string             `json:"location,omitempty"`
-	Tags     []string           `json:"tags,omitempty"`
-	Media    []PostMediaRequest `json:"media,omitempty"`
+	Type     PostType           `form:"type" binding:"required"`
+	Content  string             `form:"content"`
+	Privacy  PostPrivacy        `form:"privacy"`
+	Location string             `form:"location,omitempty"`
+	Tags     []string           `form:"tags,omitempty"`
+	Media    []PostMediaRequest `form:"media,omitempty"`
 }
 
 type UpdatePostRequest struct {
@@ -55,6 +54,7 @@ type PostMediaRequest struct {
 	Duration  int    `json:"duration,omitempty"`
 	Thumbnail string `json:"thumbnail,omitempty"`
 	AltText   string `json:"alt_text,omitempty"`
+	BlurHash  string `json:"blur_hash,omitempty"`
 	Order     int    `json:"order"`
 }
 

@@ -57,7 +57,7 @@ type PostRepository interface {
 	GetByID(id uint) (*postgres.Post, error)
 	Update(id uint, updates map[string]interface{}) error
 	Delete(id uint) error
-	GetUserPosts(targetUserID uint, privacy postgres.PostPrivacy) ([]postgres.Post, error)
+	GetUserPosts(currUserID uint, targetUserID *uint, privacy postgres.PostPrivacy, cursor paginator.Cursor, limit int) ([]postgres.Post, paginator.Cursor, error)
 	GetFeed(userID uint, cursor paginator.Cursor, limit int) ([]postgres.Post, paginator.Cursor, error)
 	GetPublicFeed(cursor paginator.Cursor, limit int) ([]postgres.Post, paginator.Cursor, error)
 	IncrementLikeCount(postID uint) error
@@ -111,11 +111,11 @@ type ShareRepository interface {
 }
 
 type ChatRoomRepository interface {
-	Create(room *postgres.ChatRoom) error
+	Create(name string, creatorID uint, chatRoomType postgres.ChatRoomType, participants []uint) (*postgres.ChatRoom, error)
 	GetByID(id uint) (*postgres.ChatRoom, error)
 	Update(id uint, updates map[string]interface{}) error
-	Delete(id uint) error
-	GetUserRooms(userID uint) ([]responses.ChatRoomSummary, error)
+	Delete(userID uint, roomID uint) error
+	GetUserRooms(userID uint, archive bool, cursor paginator.Cursor, limit int) ([]responses.ChatRoomSummary, paginator.Cursor, error)
 	GetPrivateRoom(userID1, userID2 uint) (*postgres.ChatRoom, error)
 	AddParticipant(participant *postgres.Participant) error
 	RemoveParticipant(roomID, userID uint) error

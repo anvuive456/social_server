@@ -5,3 +5,4 @@ memory_bank/
 .env.example
 .env.docker
 bin/
+docs/

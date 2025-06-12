@@ -30,6 +30,7 @@ func (r *postRepository) GetByID(id uint) (*postgres.Post, error) {
 	var post postgres.Post
 	err := r.db.
 		Preload("Author").
+		Preload("Author.Profile").
 		Preload("Media").
 		Preload("Likes").
 		Preload("Comments").
@@ -49,20 +50,35 @@ func (r *postRepository) Delete(id uint) error {
 	return r.db.Delete(&postgres.Post{}, id).Error
 }
 
-func (r *postRepository) GetUserPosts(targetUserID uint, privacy postgres.PostPrivacy) ([]postgres.Post, error) {
+func (r *postRepository) GetUserPosts(currUserID uint, targetUserID *uint, privacy postgres.PostPrivacy, cursor paginator.Cursor, limit int) ([]postgres.Post, paginator.Cursor, error) {
 	var posts []postgres.Post
-	query := r.db.
-		Where("author_id = ?", targetUserID).
-		Preload("Author").
-		Preload("Media").
-		Order("created_at DESC")
+	query := r.db.Model(&postgres.Post{})
 
-	if privacy != "" {
-		query = query.Where("privacy = ?", privacy)
+	if targetUserID != nil {
+		// Lấy posts của user cụ thể
+		query = query.Where("author_id = ?", *targetUserID)
+	} else {
+		// Lấy posts của bạn bè và posts của chính currUserID
+		query = query.
+			Joins("LEFT JOIN user_friends ON user_friends.friend_id = posts.author_id").
+			Where("(user_friends.user_id = ? AND user_friends.status = ?) OR posts.author_id = ?",
+				currUserID, "accepted", currUserID)
 	}
 
-	err := query.Find(&posts).Error
-	return posts, err
+	query = query.Where("privacy = ?", privacy).
+		Preload("Author").
+		Preload("Author.Profile").
+		Preload("Media")
+	order := paginator.DESC
+	p := paginators.CreatePostPaginator(cursor, &order, &limit)
+	result, nextCursor, err := p.Paginate(query, &posts)
+	if err != nil {
+		return nil, paginator.Cursor{}, err
+	}
+	if result.Error != nil {
+		return nil, paginator.Cursor{}, result.Error
+	}
+	return posts, nextCursor, err
 }
 
 func (r *postRepository) GetFeed(userID uint, cursor paginator.Cursor, limit int) ([]postgres.Post, paginator.Cursor, error) {

@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"time"
 	"social_server/internal/models/constants"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -59,9 +59,9 @@ type ChatRoom struct {
 	Messages     []Message     `gorm:"foreignKey:ChatRoomID" json:"messages"`
 
 	// Timestamps
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+	DeletedAt *gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 type ChatRoomSettings struct {
@@ -249,8 +249,6 @@ type ChatNotification struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
-
-
 
 // Table names
 func (ChatRoom) TableName() string {

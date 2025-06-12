@@ -12,13 +12,13 @@ import (
 )
 
 type Router struct {
-	config         *config.Config
-	authHandler    *handlers.AuthHandler
-	userHandler    *handlers.UserHandler
-	profileHandler *handlers.ProfileHandler
-	friendHandler  *handlers.FriendHandler
-	postHandler    *handlers.PostHandler
-	// chatHandler         *handlers.ChatHandler
+	config              *config.Config
+	authHandler         *handlers.AuthHandler
+	userHandler         *handlers.UserHandler
+	profileHandler      *handlers.ProfileHandler
+	friendHandler       *handlers.FriendHandler
+	postHandler         *handlers.PostHandler
+	chatHandler         *handlers.ChatHandler
 	uploadHandler       *handlers.UploadHandler
 	searchHandler       *handlers.SearchHandler
 	callHandler         *handlers.CallHandler
@@ -44,13 +44,13 @@ func NewRouter(
 	onlineStatusHandler := handlers.NewOnlineStatusHandler(onlineStatusService, authService)
 
 	return &Router{
-		config:         cfg,
-		authHandler:    handlers.NewAuthHandler(authService, mailService),
-		userHandler:    handlers.NewUserHandler(userService),
-		profileHandler: handlers.NewProfileHandler(profileService),
-		friendHandler:  handlers.NewFriendHandler(friendService),
-		postHandler:    handlers.NewPostHandler(postService),
-		// chatHandler:         handlers.NewChatHandler(chatService, userService),
+		config:              cfg,
+		authHandler:         handlers.NewAuthHandler(authService, mailService),
+		userHandler:         handlers.NewUserHandler(userService),
+		profileHandler:      handlers.NewProfileHandler(profileService),
+		friendHandler:       handlers.NewFriendHandler(friendService),
+		postHandler:         handlers.NewPostHandler(postService),
+		chatHandler:         handlers.NewChatHandler(chatService, userService),
 		uploadHandler:       handlers.NewUploadHandler("./uploads"),
 		searchHandler:       handlers.NewSearchHandler(searchService),
 		callHandler:         handlers.NewCallHandler(callService, wsHandler),
@@ -110,7 +110,7 @@ func (r *Router) SetupRoutes() *gin.Engine {
 		r.setupProfileRoutes(v1)
 		r.setupFriendRoutes(v1)
 		r.setupPostRoutes(v1)
-		// r.setupChatRoutes(v1)
+		r.setupChatRoutes(v1)
 		r.setupSearchRoutes(v1)
 		r.setupCallRoutes(v1)
 		r.setupOnlineStatusRoutes(v1)
@@ -189,67 +189,60 @@ func (r *Router) setupFriendRoutes(v1 *gin.RouterGroup) {
 
 func (r *Router) setupPostRoutes(v1 *gin.RouterGroup) {
 	posts := v1.Group("/posts")
+	posts.Use(middleware.Auth())
+
 	{
-		// Public post routes (with optional auth)
-		posts.GET("/public", r.postHandler.GetPublicFeed)
-		posts.GET("/search", r.postHandler.SearchPosts)
-		posts.GET("/:id", r.postHandler.GetPost)
-		posts.GET("/:id/comments", r.postHandler.GetComments)
-
-		// User posts (public)
+		// Posts
 		posts.GET("", r.postHandler.GetPosts)
+		posts.GET("/:id", r.postHandler.GetPost)
 
-		// Protected post routes
-		postsProtected := posts.Group("")
-		postsProtected.Use(middleware.Auth())
-		{
-			// Post management
-			postsProtected.POST("", r.postHandler.CreatePost)
-			postsProtected.PUT("/:id", r.postHandler.UpdatePost)
-			postsProtected.DELETE("/:id", r.postHandler.DeletePost)
+		// Post management
+		posts.POST("", r.postHandler.CreatePost)
+		posts.PUT("/:id", r.postHandler.UpdatePost)
+		posts.DELETE("/:id", r.postHandler.DeletePost)
 
-			// Feed
-			postsProtected.GET("/feed", r.postHandler.GetFeed)
+		// Feed
+		posts.GET("/feed", r.postHandler.GetFeed)
 
-			// Post interactions
-			postsProtected.POST("/:id/like", r.postHandler.LikePost)
-			postsProtected.POST("/:id/comments", r.postHandler.CreateComment)
-			postsProtected.POST("/:id/share", r.postHandler.SharePost)
-		}
+		// Post interactions
+		posts.POST("/:id/like", r.postHandler.LikePost)
+		posts.POST("/:id/comments", r.postHandler.CreateComment)
+		posts.POST("/:id/share", r.postHandler.SharePost)
 	}
+
 }
 
-// func (r *Router) setupChatRoutes(v1 *gin.RouterGroup) {
-// 	chat := v1.Group("/chat")
-// 	chat.Use(middleware.Auth())
-// 	{
-// 		// Room management
-// 		chat.POST("/rooms", r.chatHandler.CreateRoom)
-// 		chat.GET("/rooms", r.chatHandler.GetRooms)
-// 		chat.GET("/rooms/search", r.chatHandler.SearchRooms)
-// 		chat.GET("/rooms/:room_id", r.chatHandler.GetRoom)
-// 		// chat.PUT("/rooms/:room_id", r.chatHandler.UpdateRoom)
-// 		// chat.DELETE("/rooms/:room_id", r.chatHandler.DeleteRoom)
+func (r *Router) setupChatRoutes(v1 *gin.RouterGroup) {
+	chat := v1.Group("/chat")
+	chat.Use(middleware.Auth())
+	{
+		// Room management
+		chat.POST("/rooms", r.chatHandler.CreateRoom)
+		chat.GET("/rooms", r.chatHandler.GetRooms)
+		// chat.GET("/rooms/search", r.chatHandler.SearchRooms)
+		// chat.GET("/rooms/:room_id", r.chatHandler.GetRoom)
+		// // chat.PUT("/rooms/:room_id", r.chatHandler.UpdateRoom)
+		chat.DELETE("/rooms/:id", r.chatHandler.DeleteRoom)
 
-// 		// Message management
-// 		chat.GET("/rooms/:room_id/messages", r.chatHandler.GetMessages)
-// 		chat.POST("/rooms/:room_id/messages", r.chatHandler.SendMessage)
-// 		// chat.PUT("/messages/:message_id", r.chatHandler.UpdateMessage)
-// 		chat.DELETE("/messages/:message_id", r.chatHandler.DeleteMessage)
-// 		chat.POST("/messages/:message_id/read", r.chatHandler.MarkMessageRead)
+		// // Message management
+		// chat.GET("/rooms/:room_id/messages", r.chatHandler.GetMessages)
+		// chat.POST("/rooms/:room_id/messages", r.chatHandler.SendMessage)
+		// // chat.PUT("/messages/:message_id", r.chatHandler.UpdateMessage)
+		// chat.DELETE("/messages/:message_id", r.chatHandler.DeleteMessage)
+		// chat.POST("/messages/:message_id/read", r.chatHandler.MarkMessageRead)
 
-// 		// Participant management
-// 		chat.GET("/rooms/:room_id/participants", r.chatHandler.GetParticipants)
-// 		chat.POST("/rooms/:room_id/participants", r.chatHandler.AddParticipant)
-// 		chat.DELETE("/rooms/:room_id/participants/:user_id", r.chatHandler.RemoveParticipant)
-// 		// chat.PUT("/rooms/:room_id/participants/:user_id/role", r.chatHandler.UpdateParticipantRole)
+		// // Participant management
+		// chat.GET("/rooms/:room_id/participants", r.chatHandler.GetParticipants)
+		// chat.POST("/rooms/:room_id/participants", r.chatHandler.AddParticipant)
+		// chat.DELETE("/rooms/:room_id/participants/:user_id", r.chatHandler.RemoveParticipant)
+		// // chat.PUT("/rooms/:room_id/participants/:user_id/role", r.chatHandler.UpdateParticipantRole)
 
-// 		// Reactions and typing
-// 		chat.POST("/messages/:message_id/reactions", r.chatHandler.AddReaction)
-// 		chat.DELETE("/messages/:message_id/reactions/:emoji", r.chatHandler.RemoveReaction)
-// 		// chat.POST("/rooms/:room_id/typing", r.chatHandler.SetTyping)
-// 	}
-// }
+		// // Reactions and typing
+		// chat.POST("/messages/:message_id/reactions", r.chatHandler.AddReaction)
+		// chat.DELETE("/messages/:message_id/reactions/:emoji", r.chatHandler.RemoveReaction)
+		// chat.POST("/rooms/:room_id/typing", r.chatHandler.SetTyping)
+	}
+}
 
 func (r *Router) setupSearchRoutes(v1 *gin.RouterGroup) {
 	search := v1.Group("/search")

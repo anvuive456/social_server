@@ -102,6 +102,73 @@ definitions:
       user_id:
         type: integer
     type: object
+  social_server_internal_models_postgres.ChatRoom:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      created_by:
+        type: integer
+      creator:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.User'
+        description: Relationships
+      description:
+        type: string
+      id:
+        type: integer
+      is_archived:
+        type: boolean
+      last_activity:
+        type: string
+      messages:
+        items:
+          $ref: '#/definitions/social_server_internal_models_postgres.Message'
+        type: array
+      name:
+        type: string
+      participants:
+        items:
+          $ref: '#/definitions/social_server_internal_models_postgres.Participant'
+        type: array
+      settings:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.ChatRoomSettings'
+        description: Embedded settings
+      type:
+        $ref: '#/definitions/social_server_internal_models_postgres.ChatRoomType'
+      updated_at:
+        type: string
+    type: object
+  social_server_internal_models_postgres.ChatRoomSettings:
+    properties:
+      allow_file_sharing:
+        type: boolean
+      allow_image_sharing:
+        type: boolean
+      allow_video_sharing:
+        type: boolean
+      message_encryption:
+        type: boolean
+      only_admins_can_invite:
+        type: boolean
+      only_admins_can_post:
+        type: boolean
+    type: object
+  social_server_internal_models_postgres.ChatRoomType:
+    enum:
+    - private
+    - group
+    - private
+    - group
+    - private
+    - group
+    type: string
+    x-enum-varnames:
+    - ChatRoomTypePrivate
+    - ChatRoomTypeGroup
   social_server_internal_models_postgres.Comment:
     properties:
       content:
@@ -230,6 +297,212 @@ definitions:
       user_id:
         type: integer
     type: object
+  social_server_internal_models_postgres.Message:
+    properties:
+      chat_room:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.ChatRoom'
+        description: Relationships
+      chat_room_id:
+        type: integer
+      content:
+        type: string
+      created_at:
+        description: Timestamps
+        type: string
+      delivery_status:
+        description: JSON as string
+        type: string
+      edited_at:
+        type: string
+      encrypted_content:
+        type: string
+      forwarded_from:
+        $ref: '#/definitions/social_server_internal_models_postgres.Message'
+      forwarded_from_id:
+        type: integer
+      id:
+        type: integer
+      location:
+        $ref: '#/definitions/social_server_internal_models_postgres.MessageLocation'
+      media:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.MessageMedia'
+        description: Embedded media and location
+      mentions:
+        description: JSON array as string
+        type: string
+      reactions:
+        items:
+          $ref: '#/definitions/social_server_internal_models_postgres.MessageReaction'
+        type: array
+      read_by:
+        items:
+          $ref: '#/definitions/social_server_internal_models_postgres.MessageRead'
+        type: array
+      reply_to:
+        $ref: '#/definitions/social_server_internal_models_postgres.Message'
+      reply_to_id:
+        type: integer
+      sender:
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
+      sender_id:
+        type: integer
+      tags:
+        description: JSON array as string
+        type: string
+      type:
+        $ref: '#/definitions/social_server_internal_models_postgres.MessageType'
+      updated_at:
+        type: string
+    type: object
+  social_server_internal_models_postgres.MessageLocation:
+    properties:
+      address:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      place_name:
+        type: string
+    type: object
+  social_server_internal_models_postgres.MessageMedia:
+    properties:
+      duration:
+        type: integer
+      filename:
+        type: string
+      height:
+        type: integer
+      mime_type:
+        type: string
+      size:
+        type: integer
+      thumbnail:
+        type: string
+      type:
+        type: string
+      url:
+        type: string
+      width:
+        type: integer
+    type: object
+  social_server_internal_models_postgres.MessageReaction:
+    properties:
+      created_at:
+        description: Timestamps
+        type: string
+      emoji:
+        type: string
+      id:
+        type: integer
+      message:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.Message'
+        description: Relationships
+      message_id:
+        type: integer
+      reacted_at:
+        type: string
+      user:
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
+      user_id:
+        type: integer
+    type: object
+  social_server_internal_models_postgres.MessageRead:
+    properties:
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      message:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.Message'
+        description: Relationships
+      message_id:
+        type: integer
+      read_at:
+        type: string
+      user:
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
+      user_id:
+        type: integer
+    type: object
+  social_server_internal_models_postgres.MessageType:
+    enum:
+    - text
+    - image
+    - video
+    - audio
+    - file
+    - system
+    - location
+    - text
+    - image
+    - video
+    - audio
+    - file
+    - system
+    - location
+    type: string
+    x-enum-varnames:
+    - MessageTypeText
+    - MessageTypeImage
+    - MessageTypeVideo
+    - MessageTypeAudio
+    - MessageTypeFile
+    - MessageTypeSystem
+    - MessageTypeLocation
+  social_server_internal_models_postgres.Participant:
+    properties:
+      chat_room:
+        allOf:
+        - $ref: '#/definitions/social_server_internal_models_postgres.ChatRoom'
+        description: Relationships
+      chat_room_id:
+        type: integer
+      created_at:
+        description: Timestamps
+        type: string
+      id:
+        type: integer
+      is_blocked:
+        type: boolean
+      is_muted:
+        type: boolean
+      joined_at:
+        type: string
+      last_read_at:
+        type: string
+      nickname:
+        type: string
+      permissions:
+        description: JSON array as string
+        type: string
+      role:
+        $ref: '#/definitions/social_server_internal_models_postgres.ParticipantRole'
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/social_server_internal_models_postgres.User'
+      user_id:
+        type: integer
+    type: object
+  social_server_internal_models_postgres.ParticipantRole:
+    enum:
+    - member
+    - admin
+    - owner
+    - member
+    - admin
+    - owner
+    type: string
+    x-enum-varnames:
+    - ParticipantRoleMember
+    - ParticipantRoleAdmin
+    - ParticipantRoleOwner
   social_server_internal_models_postgres.Post:
     properties:
       author:
@@ -342,9 +615,6 @@ definitions:
     - public
     - friends
     - private
-    - public
-    - friends
-    - private
     type: string
     x-enum-varnames:
     - PostPrivacyPublic
@@ -352,11 +622,6 @@ definitions:
     - PostPrivacyPrivate
   social_server_internal_models_postgres.PostType:
     enum:
-    - text
-    - image
-    - video
-    - link
-    - audio
     - text
     - image
     - video
@@ -576,6 +841,33 @@ definitions:
     - current_password
     - new_password
     type: object
+  social_server_internal_models_requests.ChatRoomType:
+    enum:
+    - private
+    - group
+    - private
+    - group
+    type: string
+    x-enum-varnames:
+    - ChatRoomTypePrivate
+    - ChatRoomTypeGroup
+  social_server_internal_models_requests.CreateChatRoomRequest:
+    properties:
+      avatar:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      participants:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/social_server_internal_models_requests.ChatRoomType'
+    required:
+    - type
+    type: object
   social_server_internal_models_requests.CreateCommentRequest:
     properties:
       content:
@@ -588,27 +880,6 @@ definitions:
         type: integer
     required:
     - content
-    type: object
-  social_server_internal_models_requests.CreatePostRequest:
-    properties:
-      content:
-        type: string
-      location:
-        type: string
-      media:
-        items:
-          $ref: '#/definitions/social_server_internal_models_requests.PostMediaRequest'
-        type: array
-      privacy:
-        $ref: '#/definitions/social_server_internal_models_requests.PostPrivacy'
-      tags:
-        items:
-          type: string
-        type: array
-      type:
-        $ref: '#/definitions/social_server_internal_models_requests.PostType'
-    required:
-    - type
     type: object
   social_server_internal_models_requests.DeclineFriendRequest:
     properties:
@@ -647,36 +918,11 @@ definitions:
     - email
     - password
     type: object
-  social_server_internal_models_requests.PostMediaRequest:
-    properties:
-      alt_text:
-        type: string
-      duration:
-        type: integer
-      filename:
-        type: string
-      height:
-        type: integer
-      mime_type:
-        type: string
-      order:
-        type: integer
-      size:
-        type: integer
-      thumbnail:
-        type: string
-      type:
-        type: string
-      url:
-        type: string
-      width:
-        type: integer
-    required:
-    - type
-    - url
-    type: object
   social_server_internal_models_requests.PostPrivacy:
     enum:
+    - public
+    - friends
+    - private
     - public
     - friends
     - private
@@ -688,25 +934,6 @@ definitions:
     - PostPrivacyPublic
     - PostPrivacyFriends
     - PostPrivacyPrivate
-  social_server_internal_models_requests.PostType:
-    enum:
-    - text
-    - image
-    - video
-    - link
-    - audio
-    - text
-    - image
-    - video
-    - link
-    - audio
-    type: string
-    x-enum-varnames:
-    - PostTypeText
-    - PostTypeImage
-    - PostTypeVideo
-    - PostTypeLink
-    - PostTypeAudio
   social_server_internal_models_requests.RefreshTokenRequest:
     properties:
       refresh_token:
@@ -833,6 +1060,38 @@ definitions:
       stats:
         additionalProperties: true
         type: object
+    type: object
+  social_server_internal_models_responses.ChatRoomSummary:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_muted:
+        type: boolean
+      last_activity:
+        type: string
+      last_message:
+        $ref: '#/definitions/social_server_internal_models_postgres.Message'
+      name:
+        type: string
+      participant_count:
+        type: integer
+      type:
+        $ref: '#/definitions/social_server_internal_models_postgres.ChatRoomType'
+      unread_count:
+        type: integer
+    type: object
+  social_server_internal_models_responses.ChatRoomsResponse:
+    properties:
+      next_cursor:
+        $ref: '#/definitions/paginator.Cursor'
+      rooms:
+        items:
+          $ref: '#/definitions/social_server_internal_models_responses.ChatRoomSummary'
+        type: array
     type: object
   social_server_internal_models_responses.CommentResponse:
     properties:
@@ -1523,6 +1782,112 @@ paths:
       summary: Get WebRTC configuration
       tags:
       - calls
+  /chat/rooms:
+    get:
+      description: Get list of chat rooms for the authenticated user
+      parameters:
+      - in: query
+        name: after
+        type: string
+      - in: query
+        name: archive
+        type: boolean
+      - in: query
+        name: before
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User rooms
+          schema:
+            $ref: '#/definitions/social_server_internal_models_responses.ChatRoomsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Fetch failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user chat rooms
+      tags:
+      - Chat
+    post:
+      consumes:
+      - application/json
+      description: Create a new chat room (group or private)
+      parameters:
+      - description: Room creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/social_server_internal_models_requests.CreateChatRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created room
+          schema:
+            $ref: '#/definitions/social_server_internal_models_postgres.ChatRoom'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Creation failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create chat room
+      tags:
+      - Chat
+  /chat/rooms/{id}:
+    delete:
+      description: Delete a specific chat room
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Room deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Delete failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete chat room
+      tags:
+      - Chat
   /friends:
     get:
       description: Get list of user's friends with pagination
@@ -1907,17 +2272,81 @@ paths:
       tags:
       - Friends
   /posts:
-    post:
+    get:
       consumes:
       - application/json
-      description: Create a new post with text, images, or videos
+      description: Get posts with cursor-based pagination. If user_id is provided,
+        returns posts from that specific user. If user_id is null, returns posts from
+        friends.
       parameters:
-      - description: Post data
-        in: body
-        name: post
+      - in: query
+        name: after
+        type: string
+      - in: query
+        name: before
+        type: string
+      - in: query
+        name: limit
         required: true
-        schema:
-          $ref: '#/definitions/social_server_internal_models_requests.CreatePostRequest'
+        type: integer
+      - in: query
+        name: search
+        type: string
+      - in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts data
+          schema:
+            $ref: '#/definitions/social_server_internal_models_responses.PostResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user posts
+      tags:
+      - Posts
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new post with text, images, or videos using form data
+      parameters:
+      - description: Post type (text, image, video, audio, link)
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Post content
+        in: formData
+        name: content
+        type: string
+      - description: Post privacy (public, friends, private)
+        in: formData
+        name: privacy
+        type: string
+      - description: Post location
+        in: formData
+        name: location
+        type: string
+      - description: Post tags (comma separated)
+        in: formData
+        name: tags
+        type: string
+      - description: Media files (images, videos, documents)
+        in: formData
+        name: files
+        type: file
       produces:
       - application/json
       responses:
@@ -2005,6 +2434,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Get post by ID
       tags:
       - Posts
@@ -2305,39 +2736,6 @@ paths:
             additionalProperties: true
             type: object
       summary: Search posts
-      tags:
-      - Posts
-  /posts/user/{user_id}:
-    get:
-      description: Get posts by a specific user with cursor-based pagination
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: integer
-      - default: 20
-        description: Number of posts to return
-        in: query
-        name: limit
-        type: integer
-      - description: Cursor for pagination
-        in: query
-        name: cursor
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Posts data
-          schema:
-            $ref: '#/definitions/social_server_internal_models_responses.PostResponse'
-        "400":
-          description: Invalid request
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get user posts
       tags:
       - Posts
   /profile:

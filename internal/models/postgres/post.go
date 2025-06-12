@@ -72,7 +72,7 @@ type PostMedia struct {
 	BlurHash  string `gorm:"size:255" json:"blur_hash,omitempty"`
 
 	// Relationships
-	Post Post `gorm:"foreignKey:PostID" json:"post"`
+	Post *Post `gorm:"foreignKey:PostID" json:"post,omitempty"`
 
 	// Timestamps
 	CreatedAt time.Time      `json:"created_at"`
