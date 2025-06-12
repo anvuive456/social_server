@@ -6,3 +6,4 @@ memory_bank/
 .env.docker
 bin/
 docs/
+search_index/search.bleve/store/
