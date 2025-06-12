@@ -290,6 +290,18 @@ func (r *postRepository) GetUserStats(userID uint) (*responses.PostStats, error)
 	return &stats, nil
 }
 
+// ViewExists implements repositories.PostRepository.
+func (r *postRepository) ViewExists(postID uint, userID uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&postgres.PostView{}).
+		Where("posts.id = ? AND post_views.user_id = ?", postID, userID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (r *postRepository) RecordView(view *postgres.PostView) error {
 	return r.db.Create(view).Error
 }
@@ -297,7 +309,7 @@ func (r *postRepository) RecordView(view *postgres.PostView) error {
 func (r *postRepository) IncrementViewCount(postID uint) error {
 	return r.db.Model(&postgres.Post{}).
 		Where("id = ?", postID).
-		UpdateColumn("views_count", gorm.Expr("views_count + 1")).Error
+		UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
 }
 
 func (r *postRepository) Search(query string, userID *uint, limit int) ([]postgres.Post, error) {

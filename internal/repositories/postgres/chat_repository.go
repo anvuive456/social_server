@@ -206,22 +206,25 @@ func (r *chatRoomRepository) GetUserRooms(userID uint, archive bool, cursor pagi
 	summaries := make([]responses.ChatRoomSummary, 0, len(rooms))
 	for _, room := range rooms {
 		var name string
+		var avatar string
 		if room.Type == postgres.ChatRoomTypePrivate {
 			for _, participant := range room.Participants {
 				if participant.ID != userID {
 					name = participant.User.Profile.DisplayName
+					avatar = participant.User.Profile.Avatar
 					break
 				}
 			}
 		} else {
 			name = room.Name
+			avatar = room.Avatar
 		}
 
 		summary := responses.ChatRoomSummary{
 			ID:               room.ID,
 			Name:             name,
 			Type:             room.Type,
-			Avatar:           room.Avatar,
+			Avatar:           avatar,
 			ParticipantCount: int(participantCountMap[room.ID]),
 			LastMessage:      lastMessageMap[room.ID],
 			LastActivity:     room.LastActivity,

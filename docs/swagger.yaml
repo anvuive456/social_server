@@ -2652,6 +2652,45 @@ paths:
       summary: Share post
       tags:
       - Posts
+  /posts/{id}/view:
+    post:
+      consumes:
+      - application/json
+      description: View a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Post not found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: View post
+      tags:
+      - Posts
   /posts/feed:
     get:
       description: Get personalized feed with posts from friends

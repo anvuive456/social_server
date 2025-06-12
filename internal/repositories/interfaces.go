@@ -74,6 +74,7 @@ type PostRepository interface {
 	GetSavedPosts(userID uint) ([]postgres.Post, error)
 	CreateReport(report *postgres.PostReport) error
 	GetUserStats(userID uint) (*responses.PostStats, error)
+	ViewExists(postID, userID uint) (bool, error)
 	RecordView(view *postgres.PostView) error
 	IncrementViewCount(postID uint) error
 	Search(query string, userID *uint, limit int) ([]postgres.Post, error)

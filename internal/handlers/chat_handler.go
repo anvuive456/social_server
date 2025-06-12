@@ -101,7 +101,7 @@ func (h *ChatHandler) GetRooms(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 // DeleteRoom deletes a chat room

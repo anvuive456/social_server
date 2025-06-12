@@ -541,7 +541,16 @@ func (s *PostService) RecordView(postID uint, userID *uint, ipAddress, userAgent
 		CreatedAt: time.Now(),
 	}
 
-	err := s.postRepo.RecordView(view)
+	// Check if the view already exists
+	exists, err := s.postRepo.ViewExists(postID, *userID)
+	if err != nil {
+		return fmt.Errorf("failed to check view existence: %w", err)
+	}
+	if exists {
+		return nil
+	}
+
+	err = s.postRepo.RecordView(view)
 	if err != nil {
 		return fmt.Errorf("failed to record view: %w", err)
 	}

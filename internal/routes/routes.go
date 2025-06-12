@@ -206,6 +206,7 @@ func (r *Router) setupPostRoutes(v1 *gin.RouterGroup) {
 
 		// Post interactions
 		posts.POST("/:id/like", r.postHandler.LikePost)
+		posts.POST("/:id/view", r.postHandler.ViewPost)
 		posts.POST("/:id/comments", r.postHandler.CreateComment)
 		posts.POST("/:id/share", r.postHandler.SharePost)
 	}

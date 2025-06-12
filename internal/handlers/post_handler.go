@@ -23,6 +23,10 @@ import (
 var _ = postgres.Post{}
 var _ = responses.PostResponse{}
 
+type PostUri struct {
+	ID uint `uri:"id"`
+}
+
 type PostHandler struct {
 	postService *services.PostService
 }
@@ -217,10 +221,6 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 		return
 	}
 
-	type PostUri struct {
-		ID uint `uri:"id"`
-	}
-
 	var uri PostUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -271,9 +271,8 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	postIDParam := c.Param("id")
-	postID, err := strconv.ParseUint(postIDParam, 10, 32)
-	if err != nil {
+	var uri PostUri
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "invalid_post_id",
 			"message": "Invalid post ID format",
@@ -290,7 +289,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postService.UpdatePost(uint(postID), userID, &req)
+	post, err := h.postService.UpdatePost(uri.ID, userID, &req)
 	if err != nil {
 		if err.Error() == "post not found" {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -339,9 +338,8 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	postIDParam := c.Param("id")
-	postID, err := strconv.ParseUint(postIDParam, 10, 32)
-	if err != nil {
+	var uri PostUri
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "invalid_post_id",
 			"message": "Invalid post ID format",
@@ -349,8 +347,7 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 		return
 	}
 
-	err = h.postService.DeletePost(uint(postID), userID)
-	if err != nil {
+	if err := h.postService.DeletePost(uri.ID, userID); err != nil {
 		if err.Error() == "post not found" {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error":   "post_not_found",
@@ -607,6 +604,48 @@ func (h *PostHandler) LikePost(c *gin.Context) {
 		"message":  message,
 		"is_liked": isLiked,
 	})
+}
+
+// ViewPost view post
+// @Summary View post
+// @Description View a post
+// @Tags Posts
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Post ID"
+// @Success 200 {object} map[string]interface{} "Success message"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 404 {object} map[string]interface{} "Post not found"
+// @Router /posts/{id}/view [post]
+func (h *PostHandler) ViewPost(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"message": "User not authenticated",
+		})
+		return
+	}
+
+	var uri PostUri
+	if err := c.BindUri(&uri); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "invalid_uri",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := h.postService.RecordView(uri.ID, &userID, c.ClientIP(), c.Request.UserAgent()); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "err_record_view_failed",
+			"message": err.Error(),
+		})
+		return
+	}
+
 }
 
 // CreateComment creates a comment on a post

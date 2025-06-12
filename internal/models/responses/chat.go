@@ -14,7 +14,7 @@ import (
 // 	Avatar      string                   `json:"avatar"`
 // 	Role        postgres.ParticipantRole `json:"role"`
 // 	IsOnline    bool                     `json:"is_online"`
-// 	LastSeen    time.Time                `json:"last_seen"`
+// 	LastSeen    *time.Time               `json:"last_seen"`
 // 	JoinedAt    time.Time                `json:"joined_at"`
 // }
 
@@ -25,7 +25,7 @@ type ChatRoomSummary struct {
 	Avatar           string                `json:"avatar"`
 	ParticipantCount int                   `json:"participant_count"`
 	LastMessage      *postgres.Message     `json:"last_message"`
-	LastActivity     time.Time             `json:"last_activity"`
+	LastActivity     *time.Time            `json:"last_activity"`
 	UnreadCount      int                   `json:"unread_count"`
 	IsMuted          bool                  `json:"is_muted"`
 	CreatedAt        time.Time             `json:"created_at"`

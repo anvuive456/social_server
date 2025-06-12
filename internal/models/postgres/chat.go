@@ -48,7 +48,7 @@ type ChatRoom struct {
 	Avatar       string       `gorm:"size:500" json:"avatar"`
 	CreatedBy    uint         `gorm:"not null;index" json:"created_by"`
 	IsArchived   bool         `gorm:"default:false" json:"is_archived"`
-	LastActivity time.Time    `gorm:"index" json:"last_activity"`
+	LastActivity *time.Time   `gorm:"index" json:"last_activity"`
 
 	// Embedded settings
 	Settings ChatRoomSettings `gorm:"embedded;embeddedPrefix:settings_" json:"settings"`
