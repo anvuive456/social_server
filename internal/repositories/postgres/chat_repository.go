@@ -24,7 +24,7 @@ func NewChatRoomRepository(db *gorm.DB) repositories.ChatRoomRepository {
 	}
 }
 
-func (r *chatRoomRepository) Create(name string, creatorID uint, chatRoomType postgres.ChatRoomType, participants []uint) (*postgres.ChatRoom, error) {
+func (r *chatRoomRepository) Create(name string, creatorID uint, chatRoomType postgres.ChatRoomType, participants []uint, createdAt *time.Time) (*postgres.ChatRoom, error) {
 	// Check if private room already exists between two users
 	if chatRoomType == postgres.ChatRoomTypePrivate && len(participants) == 1 {
 		otherUserID := participants[0]
@@ -38,8 +38,12 @@ func (r *chatRoomRepository) Create(name string, creatorID uint, chatRoomType po
 		Name:      name,
 		CreatedBy: creatorID,
 		Type:      chatRoomType,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	}
+	if createdAt != nil {
+		room.CreatedAt = *createdAt
+		room.UpdatedAt = *createdAt
 	}
 
 	if err := r.db.Create(room).Error; err != nil {
@@ -50,8 +54,8 @@ func (r *chatRoomRepository) Create(name string, creatorID uint, chatRoomType po
 	participant := &postgres.Participant{
 		UserID:     creatorID,
 		ChatRoomID: room.ID,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
 	}
 
 	if err := r.db.Create(participant).Error; err != nil {
@@ -62,15 +66,27 @@ func (r *chatRoomRepository) Create(name string, creatorID uint, chatRoomType po
 		participant := &postgres.Participant{
 			UserID:     participantID,
 			ChatRoomID: room.ID,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
+			CreatedAt:  time.Now().UTC(),
+			UpdatedAt:  time.Now().UTC(),
 		}
 		if err := r.db.Create(participant).Error; err != nil {
 			return nil, err
 		}
 	}
 
-	return room, nil
+	var createdRoom postgres.ChatRoom
+
+	err := r.db.Model(postgres.ChatRoom{}).
+		Preload("Participants").
+		Preload("Creator").
+		Preload("Participants.User").
+		Preload("Participants.User.Profile").
+		First(&createdRoom).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &createdRoom, nil
 }
 
 func (r *chatRoomRepository) AddParticipant(participant *postgres.Participant) error {
@@ -85,6 +101,29 @@ func (r *chatRoomRepository) GetByID(id uint) (*postgres.ChatRoom, error) {
 		Preload("Participants.User").
 		Preload("Participants.User.Profile").
 		First(&room, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &room, nil
+}
+
+// GetByUserID implements repositories.ChatRoomRepository.
+func (r *chatRoomRepository) GetByUserID(userID uint, roomID uint) (*postgres.ChatRoom, error) {
+	var room postgres.ChatRoom
+	err := r.db.
+		Where(&postgres.ChatRoom{
+			ID: roomID,
+			Participants: []postgres.Participant{
+				{
+					ID: userID,
+				},
+			},
+		}).
+		Preload("Creator").
+		Preload("Participants").
+		Preload("Participants.User").
+		Preload("Participants.User.Profile").
+		First(&room).Error
 	if err != nil {
 		return nil, err
 	}
@@ -222,6 +261,7 @@ func (r *chatRoomRepository) GetUserRooms(userID uint, archive bool, cursor pagi
 
 		summary := responses.ChatRoomSummary{
 			ID:               room.ID,
+			LocalID:          room.LocalID,
 			Name:             name,
 			Type:             room.Type,
 			Avatar:           avatar,
@@ -263,12 +303,12 @@ func (r *chatRoomRepository) RemoveParticipant(roomID, userID uint) error {
 		Delete(&postgres.Participant{}).Error
 }
 
-func (r *chatRoomRepository) GetParticipants(roomID uint) ([]postgres.User, error) {
-	var participants []postgres.User
-	err := r.db.Model(&postgres.User{}).
+func (r *chatRoomRepository) GetParticipants(roomID uint) ([]postgres.Participant, error) {
+	var participants []postgres.Participant
+	err := r.db.Model(&postgres.Participant{}).
 		Where("chat_room_id = ?", roomID).
 		Preload("User").
-		Preload("User.Profiles").
+		Preload("User.Profile").
 		Find(&participants).Error
 
 	if err != nil {
@@ -315,7 +355,9 @@ func (r *chatRoomRepository) SearchRooms(userID uint, query string, limit int) (
 
 	for _, room := range rooms {
 		summary := responses.ChatRoomSummary{
-			ID:           room.ID,
+			ID:      room.ID,
+			LocalID: room.LocalID,
+
 			Name:         room.Name,
 			Type:         room.Type,
 			Avatar:       room.Avatar,
@@ -332,110 +374,36 @@ func (r *chatRoomRepository) SearchRooms(userID uint, query string, limit int) (
 	return summaries, nil
 }
 
-// Participant Repository Implementation
-type participantRepository struct {
-	db *gorm.DB
-}
+func (r *chatRoomRepository) GetUserChatRoomsByUserIDAndLastRoomID(userID uint, lastID *uint) ([]postgres.ChatRoom, int64, error) {
+	var chatRooms []postgres.ChatRoom
+	var count int64
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		db := tx.
+			Model(&postgres.ChatRoom{}).
+			Where("id IN (SELECT chat_room_id FROM participants WHERE user_id = ?)", userID)
 
-func NewParticipantRepository(db *gorm.DB) repositories.ParticipantRepository {
-	return &participantRepository{db: db}
-}
+		if lastID != nil {
+			db = db.Where("id > ?", *lastID)
+		}
 
-func (r *participantRepository) Create(participant *postgres.Participant) error {
-	return r.db.Create(participant).Error
-}
+		db = db.
+			Preload("Creator").
+			Preload("Participants").
+			Preload("Participants.User").
+			Preload("Participants.User.Profile").
+			Preload("Messages", func(db *gorm.DB) *gorm.DB {
+				return db.Order("created_at DESC").Limit(10)
+			}).
+			Preload("Messages.ReadBy").
+			Order("id DESC")
 
-func (r *participantRepository) GetByID(id uint) (*postgres.Participant, error) {
-	var participant postgres.Participant
-	err := r.db.
-		Preload("User").
-		Preload("ChatRoom").
-		First(&participant, id).Error
-	if err != nil {
-		return nil, err
-	}
-	return &participant, nil
-}
+		err := db.Count(&count).Error
+		if err != nil {
+			return err
+		}
 
-func (r *participantRepository) Update(id uint, updates map[string]interface{}) error {
-	updates["updated_at"] = time.Now()
-	return r.db.
-		Model(&postgres.Participant{}).
-		Where("id = ?", id).
-		Updates(updates).Error
-}
-
-func (r *participantRepository) Delete(id uint) error {
-	return r.db.Delete(&postgres.Participant{}, id).Error
-}
-
-func (r *participantRepository) GetByRoomAndUser(roomID, userID uint) (*postgres.Participant, error) {
-	var participant postgres.Participant
-	err := r.db.
-		Where("chat_room_id = ? AND user_id = ?", roomID, userID).
-		Preload("User").
-		Preload("ChatRoom").
-		First(&participant).Error
-	if err != nil {
-		return nil, err
-	}
-	return &participant, nil
-}
-
-func (r *participantRepository) GetRoomParticipants(roomID uint) ([]postgres.Participant, error) {
-	var participants []postgres.Participant
-	err := r.db.
-		Where("chat_room_id = ?", roomID).
-		Preload("User").
-		Find(&participants).Error
-	return participants, err
-}
-
-func (r *participantRepository) GetUserParticipations(userID uint) ([]postgres.Participant, error) {
-	var participants []postgres.Participant
-	err := r.db.
-		Where("user_id = ?", userID).
-		Preload("ChatRoom").
-		Find(&participants).Error
-	return participants, err
-}
-
-func (r *participantRepository) UpdateRole(roomID, userID uint, role postgres.ParticipantRole) error {
-	return r.db.
-		Model(&postgres.Participant{}).
-		Where("chat_room_id = ? AND user_id = ?", roomID, userID).
-		Updates(map[string]interface{}{
-			"role":       role,
-			"updated_at": time.Now(),
-		}).Error
-}
-
-func (r *participantRepository) UpdateLastRead(roomID, userID uint) error {
-	return r.db.
-		Model(&postgres.Participant{}).
-		Where("chat_room_id = ? AND user_id = ?", roomID, userID).
-		Updates(map[string]interface{}{
-			"last_read_at": time.Now(),
-			"updated_at":   time.Now(),
-		}).Error
-}
-
-func (r *participantRepository) MuteParticipant(roomID, userID uint, isMuted bool) error {
-	return r.db.
-		Model(&postgres.Participant{}).
-		Where("chat_room_id = ? AND user_id = ?", roomID, userID).
-		Updates(map[string]interface{}{
-			"is_muted":   isMuted,
-			"updated_at": time.Now(),
-		}).Error
-}
-
-func (r *participantRepository) BlockParticipant(roomID, userID uint, isBlocked bool) error {
-	return r.db.
-		Model(&postgres.Participant{}).
-		Where("chat_room_id = ? AND user_id = ?", roomID, userID).
-		Updates(map[string]interface{}{
-			"is_blocked": isBlocked,
-			"updated_at": time.Now(),
-		}).Error
+		err = db.Find(&chatRooms).Error
+		return err
+	})
+	return chatRooms, count, err
 }

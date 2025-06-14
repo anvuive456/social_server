@@ -23,10 +23,22 @@ func NewMessageRepository(db *gorm.DB) repositories.MessageRepository {
 	return &messageRepository{db: db}
 }
 
-func (r *messageRepository) Create(message *postgres.Message) error {
-	return r.db.Create(message).Error
-}
+func (r *messageRepository) Create(content string, localID uint, senderID uint, roomID uint, createdAt time.Time) (*postgres.Message, error) {
+	message := &postgres.Message{
+		Content:    content,
+		LocalID:    localID,
+		Type:       postgres.MessageTypeText,
+		SenderID:   senderID,
+		ChatRoomID: roomID,
+		CreatedAt:  createdAt,
+	}
 
+	err := r.db.Create(message).Error
+	if err != nil {
+		return nil, err
+	}
+	return message, nil
+}
 func (r *messageRepository) GetByID(id uint) (*postgres.Message, error) {
 	var message postgres.Message
 	err := r.db.
@@ -148,7 +160,7 @@ func (r *messageRepository) SearchMessages(roomID uint, query string, limit int)
 	for _, message := range messages {
 		result := responses.MessageSearchResult{
 			Message:  &message,
-			ChatRoom: &message.ChatRoom,
+			ChatRoom: message.ChatRoom,
 			Score:    1.0,
 		}
 		results = append(results, result)

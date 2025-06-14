@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"social_server/internal/models/postgres"
 	"time"
 )
 
@@ -24,6 +25,11 @@ const (
 	MessageTypeUserLeft         MessageType = "user_left"
 	MessageTypeCallStatus       MessageType = "call_status"
 	MessageTypeUserOnlineStatus MessageType = "user_online_status"
+
+	// For chat
+	MessageTypeChatCreateRoom     MessageType = "create_room"
+	MessageTypeChatSendMessage    MessageType = "send_message"
+	MessageTypeChatReceiveMessage MessageType = "receive_message"
 )
 
 // Main WebSocket message structure
@@ -166,4 +172,21 @@ type UserOnlineStatusMessage struct {
 	Username string    `json:"username"`
 	IsOnline bool      `json:"is_online"`
 	LastSeen time.Time `json:"last_seen"`
+}
+
+// Send chat message
+type SendChatMessageMessage struct {
+	RoomID    uint      `json:"room_id"`
+	LocalID   uint      `json:"local_id"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type CreateChatRoomMessage struct {
+	LocalID        uint                  `json:"local_id"`
+	Type           postgres.ChatRoomType `json:"type"`
+	Name           string                `json:"name"`
+	Description    *string               `json:"description"`
+	ParticipantIDs []uint                `json:"participant_ids"`
+	CreatedAt      time.Time             `json:"created_at"`
 }

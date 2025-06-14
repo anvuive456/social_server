@@ -947,6 +947,50 @@
                 }
             }
         },
+        "/chat/rooms/sync": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sync the user's chat rooms",
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Sync chat rooms",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "last_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rooms synced successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Sync failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/chat/rooms/{id}": {
             "delete": {
                 "security": [
@@ -5148,6 +5192,9 @@
                 },
                 "unread_count": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },

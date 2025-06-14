@@ -18,6 +18,7 @@ import (
 type WebSocketHandler struct {
 	authService *services.AuthService
 	callService *services.CallService
+	chatService *services.ChatService
 	// onlineStatusService *services.OnlineStatusService
 	connections map[string]*WebSocketConnection
 	rooms       map[string]*models.Room
@@ -37,13 +38,14 @@ type WebSocketConnection struct {
 	CloseChan chan bool
 }
 
-func NewWebSocketHandler(authService *services.AuthService, callService *services.CallService,
+func NewWebSocketHandler(authService *services.AuthService, callService *services.CallService, chatService *services.ChatService,
 
 // onlineStatusService *services.OnlineStatusService
 ) *WebSocketHandler {
 	handler := &WebSocketHandler{
 		authService: authService,
 		callService: callService,
+		chatService: chatService,
 		// onlineStatusService: onlineStatusService,
 		connections: make(map[string]*WebSocketConnection),
 		rooms:       make(map[string]*models.Room),
@@ -231,6 +233,10 @@ func (h *WebSocketHandler) handleMessage(conn *WebSocketConnection, message *mod
 		h.handleCallEnd(conn, message)
 	case models.MessageTypeHeartbeat:
 		h.handleHeartbeat(conn, message)
+	case models.MessageTypeChatSendMessage:
+		h.handleChatSendMessage(conn, message)
+	case models.MessageTypeChatCreateRoom:
+		h.handleChatCreateRoom(conn, message)
 	default:
 		h.sendError(conn, "unknown_message_type", "Unknown message type")
 	}
@@ -437,6 +443,72 @@ func (h *WebSocketHandler) handleHeartbeat(conn *WebSocketConnection, message *m
 	}
 
 	h.sendToConnection(conn, response)
+}
+
+func (h *WebSocketHandler) handleChatSendMessage(conn *WebSocketConnection, message *models.WSMessage) {
+	var req models.SendChatMessageMessage
+	err := json.Unmarshal(message.Data, &req)
+	if err != nil {
+		log.Printf("Failed to unmarshal send chat message request: %v", err)
+		return
+	}
+
+	// Validate room ID
+	participants, err := h.chatService.GetParticipants(req.RoomID)
+	if err != nil {
+		log.Printf("Room %d does not exist", req.RoomID)
+		return
+	}
+
+	// Save chat message to database
+	createdMessage, err := h.chatService.CreateMessage(conn.UserID, req)
+	if err != nil {
+		log.Printf("Failed to create chat message: %v", err)
+		return
+	}
+
+	// Send messages to user connected to the room
+	for _, participant := range participants {
+		h.sendToUser(participant.UserID, models.WSMessage{
+			Type:      models.MessageTypeChatReceiveMessage,
+			From:      conn.UserID,
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Data:      h.marshalData(createdMessage),
+		})
+	}
+}
+
+func (h *WebSocketHandler) handleChatCreateRoom(conn *WebSocketConnection, message *models.WSMessage) {
+	var req models.CreateChatRoomMessage
+	err := json.Unmarshal(message.Data, &req)
+	if err != nil {
+		log.Printf("Failed to unmarshal create chat room request: %v", err)
+		return
+	}
+
+	// Create chat room
+	createdRoom, err := h.chatService.CreateRoomFromWs(conn.UserID, &req)
+	if err != nil {
+		log.Printf("Failed to create chat room: %v", err)
+		return
+	}
+
+	// Send room ID to users
+	for _, participant := range createdRoom.Participants {
+		roomSummaryFromParticipant, err := h.chatService.GetRoomByUserId(participant.UserID, createdRoom.ID)
+		if err != nil {
+			log.Printf("Failed to get room summary for user %d: %v", participant.UserID, err)
+			continue
+		}
+		log.Printf("Room summary for user %d: %v", participant.UserID, roomSummaryFromParticipant)
+		h.sendToUser(participant.UserID, models.WSMessage{
+			Type:      models.MessageTypeChatCreateRoom,
+			From:      conn.UserID,
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Data:      h.marshalData(roomSummaryFromParticipant),
+		})
+	}
+
 }
 
 func (h *WebSocketHandler) sendToUser(userID uint, message models.WSMessage) {

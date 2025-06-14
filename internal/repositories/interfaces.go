@@ -112,22 +112,24 @@ type ShareRepository interface {
 }
 
 type ChatRoomRepository interface {
-	Create(name string, creatorID uint, chatRoomType postgres.ChatRoomType, participants []uint) (*postgres.ChatRoom, error)
+	Create(name string, creatorID uint, chatRoomType postgres.ChatRoomType, participants []uint, createdAt *time.Time) (*postgres.ChatRoom, error)
 	GetByID(id uint) (*postgres.ChatRoom, error)
+	GetByUserID(userID uint, roomID uint) (*postgres.ChatRoom, error)
 	Update(id uint, updates map[string]interface{}) error
 	Delete(userID uint, roomID uint) error
 	GetUserRooms(userID uint, archive bool, cursor paginator.Cursor, limit int) ([]responses.ChatRoomSummary, paginator.Cursor, error)
 	GetPrivateRoom(userID1, userID2 uint) (*postgres.ChatRoom, error)
 	AddParticipant(participant *postgres.Participant) error
 	RemoveParticipant(roomID, userID uint) error
-	GetParticipants(roomID uint) ([]postgres.User, error)
+	GetParticipants(roomID uint) ([]postgres.Participant, error)
 	UpdateLastActivity(roomID uint, lastActivity time.Time) error
 	ArchiveRoom(roomID uint) error
 	SearchRooms(userID uint, query string, limit int) ([]responses.ChatRoomSummary, error)
+	GetUserChatRoomsByUserIDAndLastRoomID(userID uint, lastID *uint) ([]postgres.ChatRoom, int64, error)
 }
 
 type MessageRepository interface {
-	Create(message *postgres.Message) error
+	Create(content string, localID uint, senderID uint, roomID uint, createdAt time.Time) (*postgres.Message, error)
 	GetByID(id uint) (*postgres.Message, error)
 	Update(id uint, updates map[string]interface{}) error
 	Delete(id uint) error

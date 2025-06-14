@@ -121,35 +121,40 @@ func (s *ProfileService) UpdateProfile(
 	if err != nil {
 		return nil, fmt.Errorf("invalid date of birth format: %v", err)
 	}
-
+	data := map[string]any{}
 	if req.FirstName != nil {
-		existingProfile.FirstName = *req.FirstName
+		data["first_name"] = *req.FirstName
 	}
+
 	if req.LastName != nil {
-		existingProfile.LastName = *req.LastName
+		data["last_name"] = *req.LastName
 	}
 	if req.DisplayName != nil {
-		existingProfile.DisplayName = *req.DisplayName
+		data["display_name"] = *req.DisplayName
 	}
 	if req.Bio != nil {
-		existingProfile.Bio = *req.Bio
+		data["bio"] = *req.Bio
 	}
 	if req.Phone != nil {
-		existingProfile.Phone = *req.Phone
+		data["phone"] = *req.Phone
 	}
 	if avatarURL != "" {
-		existingProfile.Avatar = avatarURL
-		existingProfile.AvatarHash = avatarHash
+		data["avatar"] = avatarURL
+	}
+	if avatarHash != "" {
+		data["avatar_hash"] = avatarHash
 	}
 	if wallImageURL != "" {
-		existingProfile.WallImage = wallImageURL
-		existingProfile.WallImageHash = wallImageHash
+		data["wall_image"] = wallImageURL
+	}
+	if wallImageHash != "" {
+		data["wall_image_hash"] = wallImageHash
 	}
 	if dateOfBirth != nil {
-		existingProfile.DateOfBirth = dateOfBirth
+		data["date_of_birth"] = dateOfBirth
 	}
 
-	updated, err := s.profileRepo.Update(existingProfile)
+	updated, err := s.profileRepo.UpdatePartial(existingProfile.ID, data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update profile: %v", err)
 	}

@@ -20,6 +20,7 @@ import (
 
 type ChatRoomSummary struct {
 	ID               uint                  `json:"id"`
+	LocalID          uint                  `json:"local_id"`
 	Name             string                `json:"name"`
 	Type             postgres.ChatRoomType `json:"type"`
 	Avatar           string                `json:"avatar"`
@@ -29,6 +30,7 @@ type ChatRoomSummary struct {
 	UnreadCount      int                   `json:"unread_count"`
 	IsMuted          bool                  `json:"is_muted"`
 	CreatedAt        time.Time             `json:"created_at"`
+	UpdatedAt        time.Time             `json:"updated_at"`
 }
 type ChatRoomsResponse struct {
 	Conversations []ChatRoomSummary `json:"rooms"`
@@ -89,6 +91,15 @@ type ChatStatisticsResponse struct {
 	TotalMessages      int `json:"total_messages"`
 	UnreadMessages     int `json:"unread_messages"`
 	ActiveParticipants int `json:"active_participants"`
+}
+
+type SyncChatRoomsResponse struct {
+	Rooms []ChatRoomSummary `json:"rooms"`
+	Count int64             `json:"count"`
+}
+
+type SyncChatMessagesResponse struct {
+	Messages []postgres.Message `json:"messages"`
 }
 
 type WebSocketMessage struct {

@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"social_server/internal/models"
 	"social_server/internal/models/postgres"
 	"social_server/internal/models/requests"
 	"social_server/internal/models/responses"
@@ -21,10 +22,168 @@ func NewChatService(repos *repositories.Repositories) *ChatService {
 	}
 }
 
-// Room operations
-func (s *ChatService) CreateRoom(creatorID uint, req *requests.CreateChatRoomRequest) (*postgres.ChatRoom, error) {
+func (s *ChatService) SyncRooms(userID uint, req requests.SyncChatRoomsRequest) (*responses.SyncChatRoomsResponse, error) {
+	rooms, count, err := s.repos.ChatRoom.GetUserChatRoomsByUserIDAndLastRoomID(userID, req.LastID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sync chat rooms: %w", err)
+	}
 
-	room, err := s.repos.ChatRoom.Create(req.Name, creatorID, req.Type, req.Participants)
+	roomSummaries := make([]responses.ChatRoomSummary, len(rooms))
+	for i, room := range rooms {
+		name := room.Name
+		if room.Type == postgres.ChatRoomTypeGroup {
+			name = room.Name
+		} else {
+			for _, participant := range room.Participants {
+				if participant.UserID != userID {
+					name = participant.User.Profile.DisplayName
+					break
+				}
+			}
+		}
+
+		avatar := room.Avatar
+		if room.Type == postgres.ChatRoomTypePrivate {
+			for _, participant := range room.Participants {
+				if participant.UserID != userID {
+					avatar = participant.User.Profile.Avatar
+					break
+				}
+			}
+		}
+
+		unreadCount := 0
+		for _, message := range room.Messages {
+			read := false
+			for _, readBy := range message.ReadBy {
+				if readBy.UserID == userID {
+					read = true
+				}
+			}
+			if !read {
+				unreadCount++
+			}
+		}
+		var lastMessage *postgres.Message
+		var lastActivity *time.Time
+		if len(room.Messages) > 0 {
+			lastMessage = &room.Messages[0]
+			lastActivity = &lastMessage.UpdatedAt
+		}
+
+		roomSummaries[i] = responses.ChatRoomSummary{
+			ID:               room.ID,
+			LocalID:          room.LocalID,
+			Avatar:           avatar,
+			Name:             name,
+			Type:             room.Type,
+			LastMessage:      lastMessage,
+			LastActivity:     lastActivity,
+			CreatedAt:        room.CreatedAt,
+			UpdatedAt:        room.UpdatedAt,
+			ParticipantCount: len(room.Participants),
+			UnreadCount:      unreadCount,
+		}
+	}
+
+	return &responses.SyncChatRoomsResponse{
+		Rooms: roomSummaries,
+		Count: count,
+	}, nil
+}
+
+func (s *ChatService) GetRoomByUserId(userID uint, roomID uint) (*responses.ChatRoomSummary, error) {
+	room, err := s.repos.ChatRoom.GetByUserID(userID, roomID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get chat room: %w", err)
+	}
+	var avatar string
+	var name string
+	var lastActivity time.Time
+	var unreadCount int
+
+	if room.Type == postgres.ChatRoomTypePrivate {
+		for _, participant := range room.Participants {
+			if participant.ID == userID {
+				continue
+			}
+			avatar = participant.User.Profile.Avatar
+			name = participant.User.Profile.DisplayName
+			lastActivity = time.Now().UTC()
+			unreadCount = 0
+			break
+		}
+	} else if room.Type == postgres.ChatRoomTypeGroup {
+		avatar = room.Avatar
+		name = room.Name
+		lastActivity = time.Now()
+		unreadCount = 0
+	}
+
+	return &responses.ChatRoomSummary{
+		ID:      room.ID,
+		LocalID: room.LocalID,
+
+		Avatar:           avatar,
+		Name:             name,
+		Type:             room.Type,
+		LastMessage:      nil,
+		LastActivity:     &lastActivity,
+		CreatedAt:        room.CreatedAt,
+		UpdatedAt:        room.UpdatedAt,
+		ParticipantCount: len(room.Participants),
+		UnreadCount:      unreadCount,
+	}, nil
+}
+
+// Room operations
+func (s *ChatService) CreateRoom(creatorID uint, req *requests.CreateChatRoomRequest) (*responses.ChatRoomSummary, error) {
+
+	room, err := s.repos.ChatRoom.Create(req.Name, creatorID, req.Type, req.Participants, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create chat room: %w", err)
+	}
+	var avatar string
+	var name string
+	var lastActivity time.Time
+	var unreadCount int
+
+	if room.Type == postgres.ChatRoomTypePrivate {
+		for _, participant := range room.Participants {
+			if participant.ID == creatorID {
+				continue
+			}
+			avatar = participant.User.Profile.Avatar
+			name = participant.User.Profile.DisplayName
+			lastActivity = time.Now().UTC()
+			unreadCount = 0
+			break
+		}
+	} else if room.Type == postgres.ChatRoomTypeGroup {
+		avatar = room.Avatar
+		name = room.Name
+		lastActivity = time.Now()
+		unreadCount = 0
+	}
+
+	return &responses.ChatRoomSummary{
+		ID:      room.ID,
+		LocalID: room.LocalID,
+
+		Avatar:           avatar,
+		Name:             name,
+		Type:             room.Type,
+		LastMessage:      nil,
+		LastActivity:     &lastActivity,
+		CreatedAt:        room.CreatedAt,
+		UpdatedAt:        room.UpdatedAt,
+		ParticipantCount: len(room.Participants),
+		UnreadCount:      unreadCount,
+	}, nil
+}
+func (s *ChatService) CreateRoomFromWs(creatorID uint, req *models.CreateChatRoomMessage) (*postgres.ChatRoom, error) {
+
+	room, err := s.repos.ChatRoom.Create(req.Name, creatorID, req.Type, req.ParticipantIDs, &req.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create chat room: %w", err)
 	}
@@ -47,7 +206,12 @@ func (s *ChatService) GetRoomMembers(roomID uint) ([]postgres.User, error) {
 		return nil, fmt.Errorf("failed to get chat room members: %w", err)
 	}
 
-	return members, nil
+	users := make([]postgres.User, len(members))
+	for i, member := range members {
+		users[i] = member.User
+	}
+
+	return users, nil
 }
 
 func (s *ChatService) GetUserRooms(userID uint, req requests.GetChatRoomsRequest) (*responses.ChatRoomsResponse, error) {
@@ -77,34 +241,34 @@ func (s *ChatService) GetPrivateRoom(userID1, userID2 uint) (*postgres.ChatRoom,
 }
 
 // Message operations
-func (s *ChatService) SendMessage(message *postgres.Message) error {
-	// Validate message
-	if message.ChatRoomID == 0 || message.SenderID == 0 {
-		return fmt.Errorf("invalid message: room ID and sender ID are required")
-	}
+// func (s *ChatService) SendMessage(message *postgres.Message) error {
+// 	// Validate message
+// 	if message.ChatRoomID == 0 || message.SenderID == 0 {
+// 		return fmt.Errorf("invalid message: room ID and sender ID are required")
+// 	}
 
-	if message.Content == "" && message.Type == postgres.MessageTypeText {
-		return fmt.Errorf("text message must have content")
-	}
+// 	if message.Content == "" && message.Type == postgres.MessageTypeText {
+// 		return fmt.Errorf("text message must have content")
+// 	}
 
-	// Set timestamps
-	message.CreatedAt = time.Now()
-	message.UpdatedAt = time.Now()
+// 	// Set timestamps
+// 	message.CreatedAt = time.Now()
+// 	message.UpdatedAt = time.Now()
 
-	// Create message
-	err := s.repos.Message.Create(message)
-	if err != nil {
-		return fmt.Errorf("failed to send message: %w", err)
-	}
+// 	// Create message
+// 	created, err := s.repos.Message.Create(message)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to send message: %w", err)
+// 	}
 
-	// Update room last activity
-	err = s.repos.ChatRoom.UpdateLastActivity(message.ChatRoomID, time.Now())
-	if err != nil {
-		return fmt.Errorf("failed to update room activity: %w", err)
-	}
+// 	// Update room last activity
+// 	err = s.repos.ChatRoom.UpdateLastActivity(message.ChatRoomID, time.Now())
+// 	if err != nil {
+// 		return fmt.Errorf("failed to update room activity: %w", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (s *ChatService) GetMessage(messageID uint) (*postgres.Message, error) {
 	message, err := s.repos.Message.GetByID(messageID)
@@ -254,7 +418,7 @@ func (s *ChatService) RemoveParticipant(roomID, userID, removedBy uint) error {
 	return nil
 }
 
-func (s *ChatService) GetParticipants(roomID uint) ([]postgres.User, error) {
+func (s *ChatService) GetParticipants(roomID uint) ([]postgres.Participant, error) {
 	participants, err := s.repos.ChatRoom.GetParticipants(roomID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get participants: %w", err)
@@ -408,4 +572,12 @@ func (s *ChatService) UpdateRoom(roomID, userID uint, updates map[string]interfa
 		return fmt.Errorf("failed to update room: %w", err)
 	}
 	return nil
+}
+
+func (s *ChatService) CreateMessage(senderID uint, req models.SendChatMessageMessage) (*postgres.Message, error) {
+	message, err := s.repos.Message.Create(req.Content, req.LocalID, senderID, req.RoomID, req.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create message: %w", err)
+	}
+	return message, nil
 }

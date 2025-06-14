@@ -42,6 +42,7 @@ const (
 
 type ChatRoom struct {
 	ID           uint         `gorm:"primaryKey;autoIncrement" json:"id"`
+	LocalID      uint         `gorm:"size:100" json:"local_id"`
 	Name         string       `gorm:"size:100" json:"name"`
 	Description  string       `gorm:"type:text" json:"description"`
 	Type         ChatRoomType `gorm:"size:20;not null" json:"type"`
@@ -97,6 +98,7 @@ type Participant struct {
 
 type Message struct {
 	ID               uint        `gorm:"primaryKey;autoIncrement" json:"id"`
+	LocalID          uint        `gorm:"not null;index" json:"local_id"`
 	ChatRoomID       uint        `gorm:"not null;index" json:"chat_room_id"`
 	SenderID         uint        `gorm:"not null;index" json:"sender_id"`
 	Type             MessageType `gorm:"size:20;not null" json:"type"`
@@ -114,8 +116,8 @@ type Message struct {
 	Location *MessageLocation `gorm:"embedded;embeddedPrefix:location_" json:"location,omitempty"`
 
 	// Relationships
-	ChatRoom      ChatRoom          `gorm:"foreignKey:ChatRoomID" json:"chat_room"`
-	Sender        User              `gorm:"foreignKey:SenderID" json:"sender"`
+	ChatRoom      *ChatRoom         `gorm:"foreignKey:ChatRoomID" json:"chat_room"`
+	Sender        *User             `gorm:"foreignKey:SenderID" json:"sender"`
 	ReplyTo       *Message          `gorm:"foreignKey:ReplyToID" json:"reply_to,omitempty"`
 	ForwardedFrom *Message          `gorm:"foreignKey:ForwardedFromID" json:"forwarded_from,omitempty"`
 	ReadBy        []MessageRead     `gorm:"foreignKey:MessageID" json:"read_by"`

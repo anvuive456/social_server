@@ -1083,6 +1083,8 @@ definitions:
         $ref: '#/definitions/social_server_internal_models_postgres.ChatRoomType'
       unread_count:
         type: integer
+      updated_at:
+        type: string
     type: object
   social_server_internal_models_responses.ChatRoomsResponse:
     properties:
@@ -1886,6 +1888,34 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete chat room
+      tags:
+      - Chat
+  /chat/rooms/sync:
+    get:
+      description: Sync the user's chat rooms
+      parameters:
+      - in: query
+        name: last_id
+        type: integer
+      responses:
+        "200":
+          description: Rooms synced successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Sync failed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Sync chat rooms
       tags:
       - Chat
   /friends:

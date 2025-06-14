@@ -39,7 +39,7 @@ func NewRouter(
 	mailService *services.MailService,
 	onlineStatusService *services.OnlineStatusService,
 ) *Router {
-	wsHandler := handlers.NewWebSocketHandler(authService, callService)
+	wsHandler := handlers.NewWebSocketHandler(authService, callService, chatService)
 
 	onlineStatusHandler := handlers.NewOnlineStatusHandler(onlineStatusService, authService)
 
@@ -224,6 +224,7 @@ func (r *Router) setupChatRoutes(v1 *gin.RouterGroup) {
 		// chat.GET("/rooms/:room_id", r.chatHandler.GetRoom)
 		// // chat.PUT("/rooms/:room_id", r.chatHandler.UpdateRoom)
 		chat.DELETE("/rooms/:id", r.chatHandler.DeleteRoom)
+		chat.GET("/rooms/sync", r.chatHandler.SyncRooms)
 
 		// // Message management
 		// chat.GET("/rooms/:room_id/messages", r.chatHandler.GetMessages)

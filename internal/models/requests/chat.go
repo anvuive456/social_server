@@ -112,3 +112,7 @@ type ChatRoomSettingsRequest struct {
 	OnlyAdminsCanInvite *bool `json:"only_admins_can_invite,omitempty"`
 	MessageEncryption   *bool `json:"message_encryption,omitempty"`
 }
+
+type SyncChatRoomsRequest struct {
+	LastID *uint `form:"last_id"`
+}
