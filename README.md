@@ -368,7 +368,7 @@ go test ./internal/services/...
 Nếu gặp vấn đề hoặc có câu hỏi, vui lòng:
 1. Kiểm tra [Issues](../../issues)
 2. Tạo issue mới nếu chưa có
-3. Liên hệ qua email: your-email@example.com
+3. 6
 
 ## 📄 License
 
